@@ -1,51 +1,24 @@
 # miupay (µpay)
 
-Self-hosted stablecoin checkout with a minimal monolith TypeScript service. Products are defined in `config.json`, and all runtime state is persisted to `state.json`.
+Miu Pay is a lightweight, self-custody payment tool focused on micropayments. A self-hosted checkout for stablecoins that keeps privacy and control in your hands.
 
-## Quick Start
+## Why "Miu"?
 
-1. Edit `config.json` with your RPC URLs, receive address, products, and admin token.
-2. Install dependencies and run:
+"Miu" is a nod to the micro prefix (µ). µ means micro, signaling a focus on micropayments.
+
+## Highlights
+
+- Open source with no vendor lock-in.
+- No KYC; privacy-first by design.
+- Fully self-custody: only one recipient address is needed.
+- Webhook support: an out-of-the-box working payment gateway.
+- Multi-chain support: Ethereum, Solana, and other EVM chains.
+- Minimal runtime: minimal state, no database required.
+
+## Get started
 
 ```bash
-npm install
-npm run dev
+npm install && npm run build && node dist/index.js
 ```
 
-The server listens on the configured port (default `3000`).
-
-## Config Overview
-
-- `chains`: chain definitions (EVM or Solana) + tokens on each chain.
-- `products`: static catalog, one product per `(chainId, tokenId, amount)`.
-- `webhooks`: endpoints that receive `invoice.paid` and `invoice.expired` events.
-- `invoice.ttlMinutes`: invoice expiration window.
-- `invoice.verificationDigits`: number of tail digits used as per-invoice verification code.
-- `scan`: polling interval and batch sizes.
-- `admin.bearerToken`: protects `/admin/*` endpoints.
-
-## State
-
-`state.json` stores:
-
-- `checkpoints`: scan cursors per `(chainId, tokenId)`
-- `invoices`: invoice lifecycle data
-- `paymentsIndex`: de-dup + unmatched deposits
-- `webhookQueue`: pending webhook deliveries
-- `webhookDeadLetter`: failed webhooks after retry
-
-State is written atomically using `state.json.tmp` then `rename()`.
-
-## API
-
-- `GET /api/products`
-- `POST /api/invoices` `{ "productId": "..." }`
-- `GET /api/invoices/:id`
-- `GET /admin/deposits?match=unmatched&chainId=&tokenId=` (Bearer token)
-
-## Notes
-
-- The service enforces only one active pending invoice per `(chainId, tokenId, expectedAmount)`.
-- If `invoice.verificationDigits > 0`, the service allows multiple pending invoices by generating a per-invoice tail-digit verification code. Product amounts should be multiples of `10^verificationDigits` base units and at least `10 * 10^verificationDigits`.
-- EVM scanning uses `eth_getLogs` with `Transfer` topics filtered by recipient.
-- Solana scanning uses `getSignaturesForAddress` + `getTransaction`.
+Developer guide: `docs/DEVELOPERS.md`.
