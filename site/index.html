@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>miupay (µpay) | Open-source micropayments infrastructure</title>
+    <meta
+      name="description"
+      content="miupay is an open-source, self-hosted stablecoin checkout for micropayments. No KYC, no lock-in, webhook-first."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-lang="en">
+    <div class="ambient"></div>
+    <header class="topbar">
+      <div class="container">
+        <div class="brand">
+          <span class="brand-mark">µ</span>
+          <div>
+            <div class="brand-name">miupay</div>
+            <div class="brand-tag">micropayment rails</div>
+          </div>
+        </div>
+        <div class="nav-wrap">
+          <nav class="nav">
+            <a href="#vision" data-lang="en">Vision</a>
+            <a href="#vision" data-lang="zh">愿景</a>
+            <a href="#features" data-lang="en">Features</a>
+            <a href="#features" data-lang="zh">优势</a>
+            <a href="#use-cases" data-lang="en">Use cases</a>
+            <a href="#use-cases" data-lang="zh">场景</a>
+            <a href="#demo" data-lang="en">Demo</a>
+            <a href="#demo" data-lang="zh">Demo</a>
+            <a
+              href="https://github.com/tianshanghong/miupay"
+              target="_blank"
+              rel="noreferrer"
+              data-lang="en"
+              >GitHub</a
+            >
+            <a
+              href="https://github.com/tianshanghong/miupay"
+              target="_blank"
+              rel="noreferrer"
+              data-lang="zh"
+              >GitHub</a
+            >
+          </nav>
+          <div class="lang-toggle" role="group" aria-label="Language">
+            <button class="lang-btn" data-lang-btn="en">EN</button>
+            <button class="lang-btn" data-lang-btn="zh">中文</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="hero-copy" data-reveal style="--delay: 0.05s">
+            <div class="kicker">
+              <span data-lang="en">Open-source • Self-hosted • µ-scale commerce</span>
+              <span data-lang="zh">开源 · 自托管 · µ 级别微支付</span>
+            </div>
+            <h1>
+              <span data-lang="en">
+                miupay is a stablecoin checkout built for micropayments.
+                <span class="accent">No KYC, no lock-in, razor-fast.</span>
+              </span>
+              <span data-lang="zh">
+                miupay 是为微支付打造的稳定币收款工具，
+                <span class="accent">无 KYC、无绑定、工业级速度。</span>
+              </span>
+            </h1>
+            <p data-lang="en">
+              Run it with a single recipient address. Webhooks fire on settlement so you can
+              unlock content, APIs, or services instantly.
+            </p>
+            <p data-lang="zh">
+              只需一个收款地址即可上线。支付确认后 Webhook 自动回调，
+              内容、API 或服务即时解锁。
+            </p>
+            <div class="notice" data-lang="en">In active development. Some features and demo flows are still in progress.</div>
+            <div class="notice" data-lang="zh">当前处于活跃开发中，部分功能与 Demo 流程仍在完善。</div>
+            <div class="cta-row">
+              <a
+                class="cta"
+                href="https://github.com/tianshanghong/miupay"
+                target="_blank"
+                rel="noreferrer"
+                data-lang="en"
+                >View on GitHub</a
+              >
+              <a
+                class="cta"
+                href="https://github.com/tianshanghong/miupay"
+                target="_blank"
+                rel="noreferrer"
+                data-lang="zh"
+                >访问 GitHub</a
+              >
+              <a class="cta ghost" href="../docs/DEVELOPERS.md" data-lang="en">Developer docs</a>
+              <a class="cta ghost" href="../docs/DEVELOPERS.md" data-lang="zh">开发文档</a>
+            </div>
+            <div class="terminal" aria-label="One line run">
+              <span class="prompt">$</span>
+              <span
+                >git clone https://github.com/tianshanghong/miupay.git && cd miupay && npm
+                install && npm run build && node dist/index.js</span
+              >
+            </div>
+          </div>
+          <div class="hero-panel" data-reveal style="--delay: 0.15s">
+            <div class="panel-header">
+              <span data-lang="en">µpay status</span>
+              <span data-lang="zh">µpay 状态</span>
+              <span class="status" data-lang="en">RUNNING</span>
+              <span class="status" data-lang="zh">运行中</span>
+            </div>
+            <div class="panel-body">
+              <div class="panel-metric">
+                <div class="label" data-lang="en">Settlement</div>
+                <div class="label" data-lang="zh">结算速度</div>
+                <div class="value" data-lang="en"><strong>Seconds to minutes</strong></div>
+                <div class="value" data-lang="zh"><strong>秒级到分钟级</strong></div>
+              </div>
+              <div class="panel-metric">
+                <div class="label" data-lang="en">Chains</div>
+                <div class="label" data-lang="zh">支持链</div>
+                <div class="value" data-lang="en">EVM chains (Ethereum, Base, Polygon) + Solana</div>
+                <div class="value" data-lang="zh">EVM 链（Ethereum、Base、Polygon）+ Solana</div>
+              </div>
+              <div class="panel-metric">
+                <div class="label" data-lang="en">Stablecoins</div>
+                <div class="label" data-lang="zh">支持币种</div>
+                <div class="value" data-lang="en">USDT / USDC / configurable tokens</div>
+                <div class="value" data-lang="zh">USDT / USDC / 可配置代币</div>
+              </div>
+              <div class="panel-metric">
+                <div class="label" data-lang="en">Ops footprint</div>
+                <div class="label" data-lang="zh">运行负担</div>
+                <div class="value" data-lang="en">Minimal state, no database</div>
+                <div class="value" data-lang="zh">最小状态，无需数据库</div>
+              </div>
+            </div>
+            <div class="panel-footer">
+              <span class="mono" data-lang="en">µ = micro</span>
+              <span class="mono" data-lang="zh">µ = 微</span>
+              <span class="mono" data-lang="en">webhooks on</span>
+              <span class="mono" data-lang="zh">Webhook 已就绪</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="vision" class="section vision">
+        <div class="container vision-grid" data-reveal style="--delay: 0.05s">
+          <div>
+            <h2 data-lang="en">µ Vision</h2>
+            <h2 data-lang="zh">µ 愿景</h2>
+            <p data-lang="en">
+              µ stands for micro. We build for the people priced out by card fees,
+              cross-border friction, and KYC walls. Small merchants, indie builders,
+              and global creators deserve a payment rail that sees them.
+            </p>
+            <p data-lang="zh">
+              µ 代表 micro。我们为被高额卡费、跨境成本、KYC 门槛挡在门外的
+              小微个体与个人开发者而造。小生意、独立产品与出海创作者
+              都应该拥有被看见的支付通道。
+            </p>
+            <p class="vision-highlight" data-lang="en">
+              The world is not only for tall trees. It must leave room for the grass.
+            </p>
+            <p class="vision-highlight" data-lang="zh">
+              世界不只是参天大树，也要容得下小草。
+            </p>
+          </div>
+          <div class="vision-panel">
+            <div class="vision-tag" data-lang="en">Built for</div>
+            <div class="vision-tag" data-lang="zh">我们服务</div>
+            <ul>
+              <li data-lang="en">Global-first indie builders</li>
+              <li data-lang="zh">独立开发者与小团队</li>
+              <li data-lang="en">Cross-border merchants and exporters</li>
+              <li data-lang="zh">跨境出海商家与团队</li>
+              <li data-lang="en">Creators, communities, and micro-SaaS</li>
+              <li data-lang="zh">创作者、社群与微型 SaaS</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="section">
+        <div class="container">
+          <div class="section-head" data-reveal style="--delay: 0.05s">
+            <h2 data-lang="en">Why teams pick miupay</h2>
+            <h2 data-lang="zh">为什么选择 miupay</h2>
+            <p data-lang="en">
+              Engineered like a machine: fast, predictable, and robust.
+            </p>
+            <p data-lang="zh">像工业设备一样稳定：快速、可控、可靠。</p>
+          </div>
+          <div class="cards">
+            <article class="card" data-reveal style="--delay: 0.1s">
+              <h3 data-lang="en">Open source, zero lock-in</h3>
+              <h3 data-lang="zh">开源 · 零绑定</h3>
+              <p data-lang="en">Own the code and deployment. Run it anywhere.</p>
+              <p data-lang="zh">掌控代码与部署，随处运行。</p>
+            </article>
+            <article class="card" data-reveal style="--delay: 0.15s">
+              <h3 data-lang="en">No KYC, privacy-first</h3>
+              <h3 data-lang="zh">无 KYC · 隐私优先</h3>
+              <p data-lang="en">No KYC for merchants or customers.</p>
+              <p data-lang="zh">商户与消费者均无需 KYC。</p>
+            </article>
+            <article class="card" data-reveal style="--delay: 0.2s">
+              <h3 data-lang="en">Self-custody by default</h3>
+              <h3 data-lang="zh">默认自托管</h3>
+              <p data-lang="en">Start with a single recipient address.</p>
+              <p data-lang="zh">仅需一个收款地址即可上线。</p>
+            </article>
+            <article class="card" data-reveal style="--delay: 0.25s">
+              <h3 data-lang="en">Webhook-first gateway</h3>
+              <h3 data-lang="zh">Webhook 即开即用</h3>
+              <p data-lang="en">Instant callbacks for paid or expired invoices.</p>
+              <p data-lang="zh">支付完成与过期回调即刻触发。</p>
+            </article>
+            <article class="card" data-reveal style="--delay: 0.3s">
+              <h3 data-lang="en">Multi-chain stablecoins</h3>
+              <h3 data-lang="zh">多链稳定币</h3>
+              <p data-lang="en">EVM chains and Solana with USDT, USDC, and more.</p>
+              <p data-lang="zh">EVM 链与 Solana，支持 USDT、USDC 等稳定币。</p>
+            </article>
+            <article class="card" data-reveal style="--delay: 0.35s">
+              <h3 data-lang="en">Minimum runtime</h3>
+              <h3 data-lang="zh">最小运行态</h3>
+              <p data-lang="en">Minimal state, no database required.</p>
+              <p data-lang="zh">状态最小化，无需数据库。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="use-cases" class="section subtle">
+        <div class="container">
+          <div class="section-head" data-reveal style="--delay: 0.05s">
+            <h2 data-lang="en">Use cases</h2>
+            <h2 data-lang="zh">适用场景</h2>
+            <p data-lang="en">Plug micropayments into products, services, and communities.</p>
+            <p data-lang="zh">把稳定币微支付嵌入到产品、服务与社群。</p>
+          </div>
+          <div class="use-cases">
+            <div class="use-case" data-reveal style="--delay: 0.1s">
+              <span class="mono" data-lang="en">Cross-border commerce</span>
+              <span class="mono" data-lang="zh">跨境出海收款</span>
+              <p data-lang="en">Collect stablecoins without card fees or FX spread.</p>
+              <p data-lang="zh">稳定币收款，绕开卡费与换汇成本。</p>
+            </div>
+            <div class="use-case" data-reveal style="--delay: 0.15s">
+              <span class="mono" data-lang="en">Indie software & micro-SaaS</span>
+              <span class="mono" data-lang="zh">独立开发 / 微型 SaaS</span>
+              <p data-lang="en">Charge for features without heavy payment stacks.</p>
+              <p data-lang="zh">轻量收费，不必引入复杂支付链路。</p>
+            </div>
+            <div class="use-case" data-reveal style="--delay: 0.2s">
+              <span class="mono" data-lang="en">Content unlocks</span>
+              <span class="mono" data-lang="zh">内容付费解锁</span>
+              <p data-lang="en">Sell articles, photos, or clips with instant unlock.</p>
+              <p data-lang="zh">文章、照片、视频即刻解锁。</p>
+            </div>
+            <div class="use-case" data-reveal style="--delay: 0.25s">
+              <span class="mono" data-lang="en">API metering</span>
+              <span class="mono" data-lang="zh">API 计费</span>
+              <p data-lang="en">Bill per call with webhook-confirmed settlement.</p>
+              <p data-lang="zh">按调用计费，回调确认即结算。</p>
+            </div>
+            <div class="use-case" data-reveal style="--delay: 0.3s">
+              <span class="mono" data-lang="en">Community tips</span>
+              <span class="mono" data-lang="zh">社群打赏</span>
+              <p data-lang="en">Low-friction support for communities and fans.</p>
+              <p data-lang="zh">为社群与创作者提供低摩擦支持。</p>
+            </div>
+            <div class="use-case" data-reveal style="--delay: 0.35s">
+              <span class="mono" data-lang="en">Machines & IoT</span>
+              <span class="mono" data-lang="zh">IoT / 机器经济</span>
+              <p data-lang="en">Tiny settlements between devices or agents.</p>
+              <p data-lang="zh">设备之间小额结算，稳定运行。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="demo">
+        <div class="container">
+          <div class="section-head" data-reveal style="--delay: 0.05s">
+            <h2 data-lang="en">Demo (placeholder)</h2>
+            <h2 data-lang="zh">Demo 交互（预留）</h2>
+            <p data-lang="en">
+              Pay 0.1 USDT, see the payment widget, and unlock a sample photo after
+              webhook confirmation.
+            </p>
+            <p data-lang="zh">
+              支付 0.1 USDT，看到支付控件与金额，支付完成后通过回调释放示例照片。
+            </p>
+          </div>
+          <div class="demo-grid" data-reveal style="--delay: 0.1s">
+            <div class="demo-card">
+              <div class="demo-head">
+                <span class="mono" data-lang="en">PAYMENT WIDGET</span>
+                <span class="mono" data-lang="zh">支付控件</span>
+                <span class="badge" data-lang="en">COMING SOON</span>
+                <span class="badge" data-lang="zh">即将上线</span>
+              </div>
+              <div class="demo-body">
+                <div class="demo-amount">
+                  <div class="label" data-lang="en">Amount</div>
+                  <div class="label" data-lang="zh">支付金额</div>
+                  <div class="value">0.1 USDT</div>
+                </div>
+                <div class="demo-lines">
+                  <span data-lang="en">Recipient → 0x••••••••••</span>
+                  <span data-lang="zh">收款地址 → 0x••••••••••</span>
+                  <span data-lang="en">Chain → EVM / Solana</span>
+                  <span data-lang="zh">链路 → EVM / Solana</span>
+                  <span data-lang="en">Status → Awaiting invoice</span>
+                  <span data-lang="zh">状态 → 待生成订单</span>
+                </div>
+                <button class="demo-button" disabled data-lang="en">Generate widget</button>
+                <button class="demo-button" disabled data-lang="zh">生成支付控件</button>
+              </div>
+            </div>
+            <div class="demo-card">
+              <div class="demo-head">
+                <span class="mono" data-lang="en">RESOURCE UNLOCK</span>
+                <span class="mono" data-lang="zh">资源解锁</span>
+                <span class="badge" data-lang="en">WEBHOOK READY</span>
+                <span class="badge" data-lang="zh">回调触发</span>
+              </div>
+              <div class="demo-body">
+                <div class="demo-preview">
+                  <div class="preview-frame"></div>
+                  <div class="preview-text" data-lang="en">
+                    Unlock a photo after payment settles.
+                  </div>
+                  <div class="preview-text" data-lang="zh">支付完成后解锁一张拍摄照片。</div>
+                </div>
+                <div class="demo-lines">
+                  <span data-lang="en">Webhook → invoice.paid</span>
+                  <span data-lang="zh">Webhook → invoice.paid</span>
+                  <span data-lang="en">Callback → release content</span>
+                  <span data-lang="zh">回调 → 释放资源链接</span>
+                  <span data-lang="en">Experience → no signup</span>
+                  <span data-lang="zh">体验 → 无需注册</span>
+                </div>
+                <button class="demo-button ghost" disabled data-lang="en">Waiting for demo</button>
+                <button class="demo-button ghost" disabled data-lang="zh">等待 Demo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section callout">
+        <div class="container callout-grid" data-reveal style="--delay: 0.05s">
+          <div>
+            <h2 data-lang="en">A minimal payment foundation</h2>
+            <h2 data-lang="zh">一套最小化的支付底座</h2>
+            <p data-lang="en">Turn micropayments into a first-class product capability.</p>
+            <p data-lang="zh">把微支付当成核心能力，而不是外部依赖。</p>
+          </div>
+          <div class="cta-row">
+            <a
+              class="cta"
+              href="https://github.com/tianshanghong/miupay"
+              target="_blank"
+              rel="noreferrer"
+              data-lang="en"
+              >Start now</a
+            >
+            <a
+              class="cta"
+              href="https://github.com/tianshanghong/miupay"
+              target="_blank"
+              rel="noreferrer"
+              data-lang="zh"
+              >立即使用</a
+            >
+            <a class="cta ghost" href="#demo" data-lang="en">View demo</a>
+            <a class="cta ghost" href="#demo" data-lang="zh">查看 Demo</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <span data-lang="en">© miupay · µ means micro</span>
+        <span data-lang="zh">© miupay · µ 代表微</span>
+        <span data-lang="en">Built for self-hosted micropayments</span>
+        <span data-lang="zh">为自托管微支付而生</span>
+      </div>
+    </footer>
+
+    <script>
+      const setScrollOffset = () => {
+        const topbar = document.querySelector(".topbar");
+        if (!topbar) {
+          return;
+        }
+        const offset = Math.ceil(topbar.getBoundingClientRect().height);
+        document.documentElement.style.setProperty("--scroll-offset", `${offset}px`);
+      };
+
+      const setLang = (lang) => {
+        document.body.dataset.lang = lang;
+        document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+        localStorage.setItem("miupay-lang", lang);
+        document.querySelectorAll(".lang-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.langBtn === lang);
+        });
+      };
+
+      document.querySelectorAll(".lang-btn").forEach((btn) => {
+        btn.addEventListener("click", () => setLang(btn.dataset.langBtn));
+      });
+
+      window.addEventListener("resize", setScrollOffset);
+      window.addEventListener("load", setScrollOffset);
+
+      setLang(localStorage.getItem("miupay-lang") || "en");
+      setScrollOffset();
+      setTimeout(setScrollOffset, 200);
+    </script>
+  </body>
+</html>
