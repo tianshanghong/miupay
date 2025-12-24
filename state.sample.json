@@ -1,0 +1,7 @@
+{
+  "checkpoints": {},
+  "invoices": {},
+  "paymentsIndex": {},
+  "webhookQueue": [],
+  "webhookDeadLetter": []
+}

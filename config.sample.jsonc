@@ -1,0 +1,89 @@
+{
+  // Server settings
+  "server": {
+    // HTTP port to listen on
+    "port": 3000
+  },
+  // Invoice lifecycle settings
+  "invoice": {
+    // Minutes before a new invoice expires
+    "ttlMinutes": 30,
+    // How many tail digits (base units) are used as the verification code
+    "verificationDigits": 3
+  },
+  // Background job polling settings
+  "scan": {
+    // How often the job loop runs (ms)
+    "intervalMs": 10000,
+    // Max block span per eth_getLogs request (Alchemy free tier requires <= 10)
+    "evmMaxBlockRange": 2000,
+    // Batch size for Solana getSignaturesForAddress
+    "solanaSignatureBatchSize": 100
+  },
+  // Supported chains and tokens
+  "chains": [
+    {
+      // Chain identifier referenced by products
+      "id": "eth-mainnet",
+      // "evm" or "solana"
+      "type": "evm",
+      // JSON-RPC endpoint
+      "rpcUrl": "https://eth-mainnet.g.alchemy.com/v2/REPLACE_ME",
+      // EVM: recipient address
+      "receiveAddress": "0x0000000000000000000000000000000000000000",
+      // Finality config
+      "finality": {
+        // EVM: confirmations required to mark paid
+        "confirmations": 12,
+        // EVM: scanning head buffer (reorg protection)
+        "bufferBlocks": 2
+      },
+      "tokens": [
+        {
+          // Token ID referenced by products
+          "id": "usdc",
+          // Display symbol
+          "symbol": "USDC",
+          // Token decimals (display only, amounts stored in base units)
+          "decimals": 6,
+          // EVM: ERC-20 contract address
+          "contractAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+        }
+      ]
+    }
+  ],
+  // Product catalog (static)
+  "products": [
+    {
+      // Product identifier for checkout
+      "id": "coffee",
+      // Display name
+      "name": "Coffee",
+      // Base-unit integer string (1.99 USDC => "1990000")
+      // Note: must be a multiple of 10^verificationDigits and >= 10 * 10^verificationDigits
+      "amount": "499000",
+      // References chains[].id
+      "chainId": "eth-mainnet",
+      // References chains[].tokens[].id
+      "tokenId": "usdc",
+      // Whether it can be sold/created
+      "active": true
+    }
+  ],
+  // Webhook delivery config
+  "webhooks": {
+    "endpoints": [
+      // {
+      //   "id": "example",
+      //   "url": "https://example.com/webhook",
+      //   "secret": "your-hmac-secret",
+      //   "events": ["invoice.paid", "invoice.expired"]
+      // }
+    ]
+  },
+  // Admin auth
+  "admin": {
+    // Bearer token for /admin/* endpoints
+    "bearerToken": "change-me"
+  }
+}
