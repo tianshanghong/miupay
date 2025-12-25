@@ -26,6 +26,33 @@ npm run dev
 - `PORT`: HTTP port (default: `4001`).
 - `STORE_PATH`: JSON file path for entitlements (default: `./store.json`).
 
+## Hook up miupay
+
+Add a webhook endpoint in `config.json` (you can list multiple modules here):
+
+```json
+{
+  "webhooks": {
+    "endpoints": [
+      {
+        "id": "media-fulfillment",
+        "url": "http://localhost:4001/webhooks/miupay",
+        "secret": "change-me",
+        "events": ["invoice.paid"]
+      }
+    ]
+  }
+}
+```
+
+Create invoices with `metadata.assetId`:
+
+```bash
+curl -X POST http://localhost:3000/api/invoices \
+  -H 'Content-Type: application/json' \
+  -d '{"productId":"coffee","metadata":{"assetId":"test-asset","buyerRef":"user-1"}}'
+```
+
 ## Webhook payload expectations
 
 The webhook expects `invoice.paid` events with:
