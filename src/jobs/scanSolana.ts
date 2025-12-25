@@ -148,15 +148,15 @@ export async function scanSolana(store: StateStore, configIndex: ConfigIndex, no
           if (state.paymentsIndex[payment.ref]) {
             continue;
           }
-          state.paymentsIndex[payment.ref] = payment;
-          const match = selectMatchingInvoice(state, payment, matchNow);
-          if (match) {
-            const invoiceId = attachPaymentToInvoice(state, payment, matchNow);
-            if (invoiceId) {
-              payment.invoiceId = invoiceId;
+            state.paymentsIndex[payment.ref] = payment;
+            const match = selectMatchingInvoice(state, payment, matchNow);
+            if (match) {
+              const idempotencyId = attachPaymentToInvoice(state, payment, matchNow);
+              if (idempotencyId) {
+                payment.idempotencyId = idempotencyId;
+              }
             }
           }
-        }
         state.checkpoints[checkpointKey] = {
           type: "solana",
           lastSeenSignature: newestSignature,

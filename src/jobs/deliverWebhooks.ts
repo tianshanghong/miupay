@@ -42,7 +42,7 @@ export async function deliverWebhooks(store: StateStore, configIndex: ConfigInde
       if (item.nextAttemptAt > now) {
         continue;
       }
-      const invoice = state.invoices[item.invoiceId];
+      const invoice = state.invoices[item.idempotencyId];
       const endpoint = configIndex.webhookEndpointsById.get(item.endpointId);
       if (!invoice || !endpoint) {
         continue;

@@ -43,13 +43,13 @@ export async function settleInvoices(store: StateStore, configIndex: ConfigIndex
       }
       await store.withLock((state) => {
         for (const invoice of ready) {
-          const target = state.invoices[invoice.id];
+          const target = state.invoices[invoice.idempotencyId];
           if (!target || target.status !== "PENDING") {
             continue;
           }
           target.status = "PAID";
           target.paidAt = now;
-          enqueueWebhooks(state, "invoice.paid", target.id, configIndex, now);
+          enqueueWebhooks(state, "invoice.paid", target.idempotencyId, configIndex, now);
         }
       });
     }
@@ -78,13 +78,13 @@ export async function settleInvoices(store: StateStore, configIndex: ConfigIndex
           if (!finalized.has(invoice.payment.txHashOrSig)) {
             continue;
           }
-          const target = state.invoices[invoice.id];
+          const target = state.invoices[invoice.idempotencyId];
           if (!target || target.status !== "PENDING") {
             continue;
           }
           target.status = "PAID";
           target.paidAt = now;
-          enqueueWebhooks(state, "invoice.paid", target.id, configIndex, now);
+          enqueueWebhooks(state, "invoice.paid", target.idempotencyId, configIndex, now);
         }
       });
     }
