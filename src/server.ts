@@ -64,7 +64,13 @@ function buildPaymentInstructions(configIndex: ConfigIndex, invoice: Invoice) {
       verificationCode: invoice.verificationCode ?? null,
     };
   }
-  const ata = deriveAta(chain.receiveOwner ?? "", token.mint ?? "");
+  const tokenProgramId = configIndex.solanaTokenProgramsByChain
+    .get(chain.id)
+    ?.get(token.id);
+  if (!tokenProgramId) {
+    throw new Error(`missing token program for ${chain.id}:${token.id}`);
+  }
+  const ata = deriveAta(chain.receiveOwner ?? "", token.mint ?? "", tokenProgramId);
   return {
     chainType: chain.type,
     chainId: chain.id,
