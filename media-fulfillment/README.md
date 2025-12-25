@@ -28,7 +28,7 @@ npm run dev
 
 ## Hook up miupay
 
-Add a webhook endpoint in `config.json`:
+Add a webhook endpoint in `config.json` (you can list multiple modules here):
 
 ```json
 {

@@ -62,7 +62,7 @@ Amounts are base-unit integers. For Solana, use `type: "solana"`, set `receiveOw
 
 - `chains`: chain definitions (EVM or Solana) + tokens on each chain.
 - `products`: static catalog, one product per `(chainId, tokenId, amount)`.
-- `webhooks`: endpoints that receive `invoice.paid` and `invoice.expired` events.
+- `webhooks`: one or more endpoints (fulfillment modules or downstream systems) that receive `invoice.paid` and `invoice.expired` events.
 - `invoice.ttlMinutes`: invoice expiration window.
 - `invoice.verificationDigits`: number of tail digits used as per-invoice verification code.
 - `scan`: polling interval and batch sizes.
@@ -119,7 +119,7 @@ curl http://localhost:3000/admin/deposits?match=unmatched \
 
 ## Media fulfillment integration (webhook)
 
-To connect miupay with `media-fulfillment` (or any compatible fulfillment service):
+To connect miupay with `media-fulfillment` (or any compatible fulfillment service). You can list multiple modules here and swap them by updating the endpoint list.
 
 1. Run `media-fulfillment` with a webhook secret:
 
@@ -132,7 +132,7 @@ PUBLIC_BASE_URL=http://localhost:4001 \
 npm run dev
 ```
 
-2. Point miupay webhooks to the fulfillment service:
+2. Point miupay webhooks to the fulfillment service (add more endpoints for other modules):
 
 ```json
 {

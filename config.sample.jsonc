@@ -80,6 +80,7 @@
         "secret": "change-me",
         "events": ["invoice.paid"]
       }
+      // Add more fulfillment modules by listing additional endpoints here.
     ]
   },
   // Admin auth
