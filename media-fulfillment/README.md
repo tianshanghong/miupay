@@ -72,3 +72,14 @@ On `invoice.paid`, the service returns:
 - `access_url`: `PUBLIC_BASE_URL/media/:assetId?token=...`
 
 The media endpoint validates the token and serves files from `MEDIA_ROOT`.
+
+## Get access URL (async)
+
+If the buyer polls after payment, request the access URL using a POST body
+to avoid putting `idempotencyId` in the URL:
+
+```bash
+curl -X POST http://localhost:4001/access \
+  -H 'Content-Type: application/json' \
+  -d '{"idempotencyId":"<idempotency-id>"}'
+```

@@ -157,6 +157,15 @@ curl -X POST http://localhost:3000/api/invoices \
   -d '{"productId":"coffee","metadata":{"assetId":"test-asset","buyerRef":"user-1"}}'
 ```
 
+4. After the invoice is paid, your frontend can fetch the access URL from the
+   fulfillment service (POST body avoids logging idempotencyId in URLs):
+
+```bash
+curl -X POST http://localhost:4001/access \
+  -H 'Content-Type: application/json' \
+  -d '{"idempotencyId":"<idempotency-id>"}'
+```
+
 ### Webhook payloads
 
 Webhook requests are POSTed with `content-type: application/json` and an `x-signature` header (HMAC SHA-256 of the raw payload using the endpoint secret).

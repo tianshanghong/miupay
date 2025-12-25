@@ -6,7 +6,7 @@ import { z } from "zod";
 import { config, validateConfig } from "./config.js";
 import { fulfillMediaUnlock, STATUS_COMPLETED, STATUS_RETRYABLE } from "./fulfillment.js";
 import { loadStore } from "./store.js";
-import { verifyToken } from "./tokens.js";
+import { signToken, verifyToken } from "./tokens.js";
 
 const metadataSchema = z
   .object({
@@ -24,6 +24,12 @@ const webhookSchema = z
         metadata: z.unknown().optional(),
       })
       .passthrough(),
+  })
+  .strict();
+
+const accessSchema = z
+  .object({
+    idempotencyId: z.string().min(1),
   })
   .strict();
 
@@ -102,6 +108,32 @@ function startHttpServer() {
       return;
     }
     res.status(422).json(result);
+  });
+
+  app.post("/access", mediaLimiter, express.json({ limit: "1mb" }), (req, res) => {
+    const parsed = accessSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "invalid_request" });
+      return;
+    }
+    const store = loadStore();
+    const entitlementId = store.idempotencyIndex[parsed.data.idempotencyId];
+    if (!entitlementId) {
+      res.status(404).json({ error: "entitlement_not_found" });
+      return;
+    }
+    const entitlement = store.entitlements[entitlementId];
+    if (!entitlement) {
+      res.status(404).json({ error: "entitlement_not_found" });
+      return;
+    }
+    const accessToken = signToken({
+      entitlementId: entitlement.id,
+      assetId: entitlement.assetId,
+      exp: Date.now() + config.tokenTtlMs,
+    });
+    const accessUrl = `${config.publicBaseUrl}/media/${entitlement.assetId}?token=${accessToken}`;
+    res.json({ access_token: accessToken, access_url: accessUrl });
   });
 
   app.get("/media/:assetId", mediaLimiter, (req, res) => {
