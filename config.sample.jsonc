@@ -73,12 +73,13 @@
   // Webhook delivery config
   "webhooks": {
     "endpoints": [
-      // {
-      //   "id": "example",
-      //   "url": "https://example.com/webhook",
-      //   "secret": "your-hmac-secret",
-      //   "events": ["invoice.paid", "invoice.expired"]
-      // }
+      {
+        // Media fulfillment webhook endpoint
+        "id": "media-fulfillment",
+        "url": "http://localhost:4001/webhooks/miupay",
+        "secret": "change-me",
+        "events": ["invoice.paid"]
+      }
     ]
   },
   // Admin auth

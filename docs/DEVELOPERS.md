@@ -117,6 +117,46 @@ curl http://localhost:3000/admin/deposits?match=unmatched \
   -H 'Authorization: Bearer <admin-token>'
 ```
 
+## Media fulfillment integration (webhook)
+
+To connect miupay with `media-fulfillment` (or any compatible fulfillment service):
+
+1. Run `media-fulfillment` with a webhook secret:
+
+```bash
+cd media-fulfillment
+WEBHOOK_SECRET=change-me \
+TOKEN_SECRET=change-me \
+MEDIA_ROOT=./media \
+PUBLIC_BASE_URL=http://localhost:4001 \
+npm run dev
+```
+
+2. Point miupay webhooks to the fulfillment service:
+
+```json
+{
+  "webhooks": {
+    "endpoints": [
+      {
+        "id": "media-fulfillment",
+        "url": "http://localhost:4001/webhooks/miupay",
+        "secret": "change-me",
+        "events": ["invoice.paid"]
+      }
+    ]
+  }
+}
+```
+
+3. Create invoices with `metadata.assetId` (required) and `metadata.buyerRef` (optional):
+
+```bash
+curl -X POST http://localhost:3000/api/invoices \
+  -H 'Content-Type: application/json' \
+  -d '{"productId":"coffee","metadata":{"assetId":"test-asset","buyerRef":"user-1"}}'
+```
+
 ### Webhook payloads
 
 Webhook requests are POSTed with `content-type: application/json` and an `x-signature` header (HMAC SHA-256 of the raw payload using the endpoint secret).
