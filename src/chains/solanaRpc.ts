@@ -1,6 +1,8 @@
 import { randomUUID } from "crypto";
 import { PublicKey } from "@solana/web3.js";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+
+const TOKEN_PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
+const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
 
 export type SolanaSignatureInfo = {
   signature: string;
@@ -64,7 +66,10 @@ async function rpcCall<T>(rpcUrl: string, method: string, params: unknown[]): Pr
 export function deriveAta(owner: string, mint: string): string {
   const ownerKey = new PublicKey(owner);
   const mintKey = new PublicKey(mint);
-  const ata = getAssociatedTokenAddressSync(mintKey, ownerKey, false);
+  const [ata] = PublicKey.findProgramAddressSync(
+    [ownerKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mintKey.toBuffer()],
+    ASSOCIATED_TOKEN_PROGRAM_ID,
+  );
   return ata.toBase58();
 }
 
