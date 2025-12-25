@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package fulfillment.v1;
+
+message MediaUnlockPayload {
+  string asset_id = 1;
+  string buyer_ref = 2;
+}
+
+message FulfillRequest {
+  string idempotency_id = 1;
+  oneof payload {
+    MediaUnlockPayload media_unlock = 10;
+  }
+}
+
+message FulfillResult {
+  enum Status {
+    COMPLETED = 0;
+    RETRYABLE = 1;
+    FAILED = 2;
+  }
+
+  Status status = 1;
+  string entitlement_id = 2;
+  string access_token = 3;
+  string access_url = 4;
+  string error = 5;
+}
+
+service FulfillmentService {
+  rpc Fulfill(FulfillRequest) returns (FulfillResult);
+}
