@@ -60,7 +60,10 @@ function startGrpcServer() {
 
   const server = new grpc.Server();
   server.addService(fulfillmentService.service, {
-    Fulfill: (call: grpc.ServerUnaryCall<FulfillRequest, FulfillResult>, callback) => {
+    Fulfill: (
+      call: grpc.ServerUnaryCall<FulfillRequest, FulfillResult>,
+      callback: grpc.sendUnaryData<FulfillResult>,
+    ) => {
       try {
         const result = handleFulfill(call.request);
         callback(null, result);
