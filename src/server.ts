@@ -80,6 +80,23 @@ function buildPaymentInstructions(configIndex: ConfigIndex, invoice: Invoice) {
   };
 }
 
+function parseMetadata(input: unknown): Record<string, string> | undefined | null {
+  if (input === undefined || input === null) {
+    return undefined;
+  }
+  if (typeof input !== "object" || Array.isArray(input)) {
+    return null;
+  }
+  const metadata: Record<string, string> = {};
+  for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
+    if (typeof value !== "string") {
+      return null;
+    }
+    metadata[key] = value;
+  }
+  return Object.keys(metadata).length > 0 ? metadata : undefined;
+}
+
 function isActivePending(invoice: Invoice, now: number) {
   return invoice.status === "PENDING" && invoice.expiresAt > now;
 }
@@ -97,6 +114,11 @@ export function createServer(configIndex: ConfigIndex, store: StateStore) {
 
   app.post("/api/invoices", rateLimit, async (req, res) => {
     const productId = typeof req.body?.productId === "string" ? req.body.productId : "";
+    const metadata = parseMetadata(req.body?.metadata);
+    if (metadata === null) {
+      res.status(400).json({ error: "invalid_metadata" });
+      return;
+    }
     const product = configIndex.productsById.get(productId);
     if (!product || !product.active) {
       res.status(400).json({ error: "invalid_product" });
@@ -176,23 +198,24 @@ export function createServer(configIndex: ConfigIndex, store: StateStore) {
         verificationCode = chosen.toString().padStart(verificationDigits, "0");
       }
 
-      const invoiceId = crypto.randomUUID();
+      const idempotencyId = crypto.randomUUID();
       const ttlMs = configIndex.config.invoice.ttlMinutes * 60_000;
       const createdAt = now;
       const expiresAt = createdAt + ttlMs;
       const created: Invoice = {
-        id: invoiceId,
+        idempotencyId,
         productId: product.id,
         chainId: product.chainId,
         tokenId: product.tokenId,
         expectedAmount,
         baseAmount: product.amount,
         verificationCode,
+        metadata,
         status: "PENDING",
         createdAt,
         expiresAt,
       };
-      state.invoices[invoiceId] = created;
+      state.invoices[idempotencyId] = created;
       return created;
     });
 
@@ -204,11 +227,12 @@ export function createServer(configIndex: ConfigIndex, store: StateStore) {
 
     res.json({
       invoice: {
-        id: invoice.id,
+        idempotencyId: invoice.idempotencyId,
         status: invoice.status,
         expectedAmount: invoice.expectedAmount,
         baseAmount: invoice.baseAmount ?? invoice.expectedAmount,
         verificationCode: invoice.verificationCode ?? null,
+        metadata: invoice.metadata ?? null,
         expiresAt: invoice.expiresAt,
       },
       payment: buildPaymentInstructions(configIndex, invoice),
@@ -216,18 +240,19 @@ export function createServer(configIndex: ConfigIndex, store: StateStore) {
   });
 
   app.get("/api/invoices/:id", async (req, res) => {
-    const invoiceId = req.params.id;
-    const invoice = await store.read((state) => state.invoices[invoiceId]);
+    const idempotencyId = req.params.id;
+    const invoice = await store.read((state) => state.invoices[idempotencyId]);
     if (!invoice) {
       res.status(404).json({ error: "not_found" });
       return;
     }
     res.json({
-      id: invoice.id,
+      idempotencyId: invoice.idempotencyId,
       status: invoice.status,
       expectedAmount: invoice.expectedAmount,
       baseAmount: invoice.baseAmount ?? invoice.expectedAmount,
       verificationCode: invoice.verificationCode ?? null,
+      metadata: invoice.metadata ?? null,
       expiresAt: invoice.expiresAt,
       paymentRef: invoice.payment?.ref ?? null,
       paidAt: invoice.paidAt ?? null,
@@ -242,7 +267,7 @@ export function createServer(configIndex: ConfigIndex, store: StateStore) {
     const entries = await store.read((state) => {
       let values = Object.values(state.paymentsIndex);
       if (match === "unmatched") {
-        values = values.filter((entry) => !entry.invoiceId);
+        values = values.filter((entry) => !entry.idempotencyId);
       }
       if (chainId) {
         values = values.filter((entry) => entry.chainId === chainId);

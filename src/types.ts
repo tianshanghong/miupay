@@ -73,13 +73,14 @@ export type InvoicePayment = {
 };
 
 export type Invoice = {
-  id: string;
+  idempotencyId: string;
   productId: string;
   chainId: string;
   tokenId: string;
   expectedAmount: string;
   baseAmount?: string;
   verificationCode?: string;
+  metadata?: Record<string, string>;
   status: InvoiceStatus;
   createdAt: number;
   expiresAt: number;
@@ -97,7 +98,7 @@ export type PaymentIndexEntry = {
   to: string;
   amount: string;
   blockRef?: number;
-  invoiceId?: string;
+  idempotencyId?: string;
 };
 
 export type Checkpoint =
@@ -113,7 +114,7 @@ export type Checkpoint =
 export type WebhookQueueItem = {
   id: string;
   event: WebhookEvent;
-  invoiceId: string;
+  idempotencyId: string;
   endpointId: string;
   attempt: number;
   nextAttemptAt: number;

@@ -88,9 +88,9 @@ export async function scanEvm(store: StateStore, configIndex: ConfigIndex, now: 
             state.paymentsIndex[payment.ref] = payment;
             const match = selectMatchingInvoice(state, payment, matchNow);
             if (match) {
-              const invoiceId = attachPaymentToInvoice(state, payment, matchNow);
-              if (invoiceId) {
-                payment.invoiceId = invoiceId;
+              const idempotencyId = attachPaymentToInvoice(state, payment, matchNow);
+              if (idempotencyId) {
+                payment.idempotencyId = idempotencyId;
               }
             }
           }

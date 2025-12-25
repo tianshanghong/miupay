@@ -51,5 +51,5 @@ export function attachPaymentToInvoice(
     amount: payment.amount,
     blockRef: payment.blockRef,
   };
-  return invoice.id;
+  return invoice.idempotencyId;
 }

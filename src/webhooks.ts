@@ -8,7 +8,7 @@ const BASE_BACKOFF_MS = 5_000;
 export function enqueueWebhooks(
   state: State,
   event: WebhookEvent,
-  invoiceId: string,
+  idempotencyId: string,
   configIndex: ConfigIndex,
   now: number,
 ) {
@@ -19,7 +19,7 @@ export function enqueueWebhooks(
     const item: WebhookQueueItem = {
       id: crypto.randomUUID(),
       event,
-      invoiceId,
+      idempotencyId,
       endpointId: endpoint.id,
       attempt: 0,
       nextAttemptAt: now,
@@ -33,13 +33,14 @@ export function buildWebhookPayload(event: WebhookEvent, invoice: Invoice) {
   return {
     event,
     data: {
-      id: invoice.id,
+      idempotencyId: invoice.idempotencyId,
       productId: invoice.productId,
       chainId: invoice.chainId,
       tokenId: invoice.tokenId,
       expectedAmount: invoice.expectedAmount,
       baseAmount: invoice.baseAmount ?? invoice.expectedAmount,
       verificationCode: invoice.verificationCode ?? null,
+      metadata: invoice.metadata ?? null,
       status: invoice.status,
       createdAt: invoice.createdAt,
       expiresAt: invoice.expiresAt,
