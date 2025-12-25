@@ -25,6 +25,10 @@ npm run dev
 - `PUBLIC_BASE_URL`: used to build access URLs (default: `http://localhost:4001`).
 - `PORT`: HTTP port (default: `4001`).
 - `STORE_PATH`: JSON file path for entitlements (default: `./store.json`).
+- `WEBHOOK_RATE_LIMIT_MAX`: max webhook requests per window (default: `60`).
+- `WEBHOOK_RATE_LIMIT_WINDOW_MS`: webhook rate limit window in ms (default: `60000`).
+- `MEDIA_RATE_LIMIT_MAX`: max media requests per window (default: `120`).
+- `MEDIA_RATE_LIMIT_WINDOW_MS`: media rate limit window in ms (default: `60000`).
 
 ## Hook up miupay
 

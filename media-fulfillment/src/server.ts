@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import path from "path";
 import express from "express";
+import rateLimit from "express-rate-limit";
 import { z } from "zod";
 import { config, validateConfig } from "./config.js";
 import { fulfillMediaUnlock, STATUS_COMPLETED, STATUS_RETRYABLE } from "./fulfillment.js";
@@ -41,8 +42,20 @@ function verifyWebhook(rawBody: string, signature: string | undefined): boolean 
 
 function startHttpServer() {
   const app = express();
+  const webhookLimiter = rateLimit({
+    windowMs: config.webhookRateLimitWindowMs,
+    max: config.webhookRateLimitMax,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+  const mediaLimiter = rateLimit({
+    windowMs: config.mediaRateLimitWindowMs,
+    max: config.mediaRateLimitMax,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
 
-  app.post("/webhooks/miupay", express.raw({ type: "*/*", limit: "1mb" }), (req, res) => {
+  app.post("/webhooks/miupay", webhookLimiter, express.raw({ type: "*/*", limit: "1mb" }), (req, res) => {
     const rawBody = req.body.toString("utf8");
     const signature = req.header("x-signature");
     if (!verifyWebhook(rawBody, signature)) {
@@ -91,7 +104,7 @@ function startHttpServer() {
     res.status(422).json(result);
   });
 
-  app.get("/media/:assetId", (req, res) => {
+  app.get("/media/:assetId", mediaLimiter, (req, res) => {
     const token = typeof req.query.token === "string" ? req.query.token : "";
     const payload = verifyToken(token);
     if (!payload) {
