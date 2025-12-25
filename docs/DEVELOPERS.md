@@ -83,8 +83,8 @@ State is written atomically using `state.json.tmp` then `rename()`.
 ## API
 
 - `GET /api/products`
-- `POST /api/invoices` `{ "productId": "..." }`
-- `GET /api/invoices/:id`
+- `POST /api/invoices` `{ "productId": "...", "metadata": { "assetId": "...", "buyerRef": "..." } }`
+- `GET /api/invoices/:id` (id is `idempotencyId`)
 - `GET /admin/deposits?match=unmatched&chainId=&tokenId=` (Bearer token)
 - Webhook events: `invoice.paid` and `invoice.expired` are delivered to configured endpoints.
 
@@ -95,13 +95,13 @@ Create an invoice:
 ```bash
 curl -X POST http://localhost:3000/api/invoices \
   -H 'Content-Type: application/json' \
-  -d '{"productId":"coffee"}'
+  -d '{"productId":"coffee","metadata":{"assetId":"img_123","buyerRef":"user_42"}}'
 ```
 
 Check an invoice:
 
 ```bash
-curl http://localhost:3000/api/invoices/<invoice-id>
+curl http://localhost:3000/api/invoices/<idempotency-id>
 ```
 
 List products:
@@ -127,13 +127,17 @@ Example `invoice.paid`:
 {
   "event": "invoice.paid",
   "data": {
-    "id": "a8c0e8c7-3a1c-4a9f-9c23-6bbd9e2c2d5f",
+    "idempotencyId": "a8c0e8c7-3a1c-4a9f-9c23-6bbd9e2c2d5f",
     "productId": "coffee",
     "chainId": "eth-sepolia",
     "tokenId": "usdc",
     "expectedAmount": "100001",
     "baseAmount": "100000",
     "verificationCode": "001",
+    "metadata": {
+      "assetId": "img_123",
+      "buyerRef": "user_42"
+    },
     "status": "PAID",
     "createdAt": 1730000000000,
     "expiresAt": 1730001800000,
@@ -154,13 +158,17 @@ Example `invoice.expired`:
 {
   "event": "invoice.expired",
   "data": {
-    "id": "a8c0e8c7-3a1c-4a9f-9c23-6bbd9e2c2d5f",
+    "idempotencyId": "a8c0e8c7-3a1c-4a9f-9c23-6bbd9e2c2d5f",
     "productId": "coffee",
     "chainId": "eth-sepolia",
     "tokenId": "usdc",
     "expectedAmount": "100001",
     "baseAmount": "100000",
     "verificationCode": "001",
+    "metadata": {
+      "assetId": "img_123",
+      "buyerRef": "user_42"
+    },
     "status": "EXPIRED",
     "createdAt": 1730000000000,
     "expiresAt": 1730001800000,
