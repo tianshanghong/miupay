@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { PublicKey } from "@solana/web3.js";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+
+const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL");
 
 export type SolanaSignatureInfo = {
   signature: string;
@@ -61,11 +62,28 @@ async function rpcCall<T>(rpcUrl: string, method: string, params: unknown[]): Pr
   return json.result;
 }
 
-export function deriveAta(owner: string, mint: string): string {
+export function deriveAta(owner: string, mint: string, tokenProgramId: string): string {
   const ownerKey = new PublicKey(owner);
   const mintKey = new PublicKey(mint);
-  const ata = getAssociatedTokenAddressSync(mintKey, ownerKey, false);
+  const programKey = new PublicKey(tokenProgramId);
+  const [ata] = PublicKey.findProgramAddressSync(
+    [ownerKey.toBuffer(), programKey.toBuffer(), mintKey.toBuffer()],
+    ASSOCIATED_TOKEN_PROGRAM_ID,
+  );
   return ata.toBase58();
+}
+
+export async function getAccountOwner(rpcUrl: string, address: string): Promise<string> {
+  const params = [address, { encoding: "base64" }];
+  const result = await rpcCall<{ value: { owner: string } | null }>(
+    rpcUrl,
+    "getAccountInfo",
+    params,
+  );
+  if (!result.value) {
+    throw new Error(`account ${address} not found`);
+  }
+  return result.value.owner;
 }
 
 export async function getSignaturesForAddress(

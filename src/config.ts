@@ -9,6 +9,7 @@ import type {
   WebhookEndpointConfig,
   WebhookEvent,
 } from "./types.js";
+import { getAccountOwner } from "./chains/solanaRpc.js";
 
 const amountSchema = z
   .string()
@@ -85,6 +86,7 @@ export type ConfigIndex = {
   productsById: Map<string, ProductConfig>;
   chainsById: Map<string, ChainConfig>;
   tokensByChain: Map<string, Map<string, TokenConfig>>;
+  solanaTokenProgramsByChain: Map<string, Map<string, string>>;
   webhookEndpointsById: Map<string, WebhookEndpointConfig>;
   webhookEventsByEndpoint: Map<string, Set<WebhookEvent>>;
 };
@@ -130,7 +132,7 @@ function validateChains(chains: ChainConfig[]) {
   }
 }
 
-function buildIndexes(config: AppConfig): ConfigIndex {
+function buildIndexes(config: AppConfig): Omit<ConfigIndex, "solanaTokenProgramsByChain"> {
   assertUnique(
     "chain id",
     config.chains.map((chain) => chain.id),
@@ -201,5 +203,38 @@ export async function loadConfig(configPath?: string): Promise<ConfigIndex> {
   const raw = await fs.readFile(resolvedPath, "utf8");
   const parsed = JSON.parse(raw);
   const config = configSchema.parse(parsed);
-  return buildIndexes(config);
+  const index = buildIndexes(config);
+  const solanaTokenProgramsByChain = await resolveSolanaTokenPrograms(config);
+  return {
+    ...index,
+    solanaTokenProgramsByChain,
+  };
+}
+
+async function resolveSolanaTokenPrograms(
+  config: AppConfig,
+): Promise<Map<string, Map<string, string>>> {
+  const byChain = new Map<string, Map<string, string>>();
+  const mintOwners = new Map<string, string>();
+
+  for (const chain of config.chains) {
+    if (chain.type !== "solana") {
+      continue;
+    }
+    const byToken = new Map<string, string>();
+    for (const token of chain.tokens) {
+      if (!token.mint) {
+        throw new Error(`token ${token.id} on ${chain.id} missing mint`);
+      }
+      let owner = mintOwners.get(token.mint);
+      if (!owner) {
+        owner = await getAccountOwner(chain.rpcUrl, token.mint);
+        mintOwners.set(token.mint, owner);
+      }
+      byToken.set(token.id, owner);
+    }
+    byChain.set(chain.id, byToken);
+  }
+
+  return byChain;
 }

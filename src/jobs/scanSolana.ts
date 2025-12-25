@@ -61,7 +61,13 @@ export async function scanSolana(store: StateStore, configIndex: ConfigIndex, no
     const commitment = chain.finality.commitment ?? "finalized";
     for (const token of chain.tokens) {
       const checkpointKey = `${chain.id}:${token.id}`;
-      const ata = deriveAta(chain.receiveOwner ?? "", token.mint ?? "");
+      const tokenProgramId = configIndex.solanaTokenProgramsByChain
+        .get(chain.id)
+        ?.get(token.id);
+      if (!tokenProgramId) {
+        throw new Error(`missing token program for ${chain.id}:${token.id}`);
+      }
+      const ata = deriveAta(chain.receiveOwner ?? "", token.mint ?? "", tokenProgramId);
       let lastSeen: string | null = null;
 
       await store.withLock((state) => {
