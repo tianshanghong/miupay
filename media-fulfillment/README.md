@@ -2,8 +2,7 @@
 
 Minimal fulfillment service for media unlocks. It exposes:
 
-- gRPC `FulfillmentService` for typed module integration.
-- HTTP `/webhooks/miupay` for current miupay webhook ingestion.
+- HTTP `/webhooks/miupay` for miupay webhook ingestion with strict schema validation.
 - HTTP `/media/:assetId?token=...` for controlled media access.
 
 ## Quick start
@@ -25,8 +24,6 @@ npm run dev
 - `MEDIA_ROOT`: local directory holding media files (default: `./media`).
 - `PUBLIC_BASE_URL`: used to build access URLs (default: `http://localhost:4001`).
 - `PORT`: HTTP port (default: `4001`).
-- `GRPC_HOST`: gRPC bind host (default: `0.0.0.0`).
-- `GRPC_PORT`: gRPC port (default: `50051`).
 - `STORE_PATH`: JSON file path for entitlements (default: `./store.json`).
 
 ## Webhook payload expectations
@@ -36,12 +33,6 @@ The webhook expects `invoice.paid` events with:
 - `data.idempotencyId`
 - `data.metadata.assetId`
 - `data.metadata.buyerRef` (optional)
-
-## gRPC
-
-Proto: `proto/fulfillment/v1/fulfillment.proto`
-
-The gRPC server listens on `GRPC_HOST:GRPC_PORT` and implements `FulfillmentService.Fulfill`.
 
 ## Access URL
 

@@ -1,27 +1,30 @@
 import crypto from "crypto";
 import path from "path";
 import express from "express";
-import * as grpc from "@grpc/grpc-js";
-import * as protoLoader from "@grpc/proto-loader";
+import { z } from "zod";
 import { config, validateConfig } from "./config.js";
-import { fulfillMediaUnlock, STATUS_COMPLETED, STATUS_FAILED, STATUS_RETRYABLE } from "./fulfillment.js";
+import { fulfillMediaUnlock, STATUS_COMPLETED, STATUS_RETRYABLE } from "./fulfillment.js";
 import { loadStore } from "./store.js";
 import { verifyToken } from "./tokens.js";
 
-const PROTO_PATH = new URL("../proto/fulfillment/v1/fulfillment.proto", import.meta.url).pathname;
+const metadataSchema = z
+  .object({
+    assetId: z.string().min(1),
+    buyerRef: z.string().min(1).optional(),
+  })
+  .passthrough();
 
-type FulfillRequest = {
-  idempotency_id?: string;
-  media_unlock?: { asset_id?: string; buyer_ref?: string };
-};
-
-type FulfillResult = {
-  status: number;
-  entitlement_id?: string;
-  access_token?: string;
-  access_url?: string;
-  error?: string;
-};
+const webhookSchema = z
+  .object({
+    event: z.enum(["invoice.paid", "invoice.expired"]),
+    data: z
+      .object({
+        idempotencyId: z.string().min(1),
+        metadata: z.unknown().optional(),
+      })
+      .passthrough(),
+  })
+  .strict();
 
 function verifyWebhook(rawBody: string, signature: string | undefined): boolean {
   if (!signature) {
@@ -36,56 +39,6 @@ function verifyWebhook(rawBody: string, signature: string | undefined): boolean 
   return crypto.timingSafeEqual(sigBuf, expectedBuf);
 }
 
-function handleFulfill(request: FulfillRequest): FulfillResult {
-  const idempotencyId = request.idempotency_id ?? "";
-  const media = request.media_unlock;
-  const assetId = media?.asset_id ?? "";
-  const buyerRef = media?.buyer_ref ?? "anonymous";
-  return fulfillMediaUnlock({ idempotencyId, assetId, buyerRef });
-}
-
-function startGrpcServer() {
-  const packageDef = protoLoader.loadSync(PROTO_PATH, {
-    keepCase: true,
-    longs: String,
-    enums: Number,
-    defaults: true,
-    oneofs: true,
-  });
-  const proto = grpc.loadPackageDefinition(packageDef) as grpc.GrpcObject;
-  const service = (proto.fulfillment as grpc.GrpcObject).v1 as grpc.GrpcObject;
-  const fulfillmentService = service.FulfillmentService as grpc.ServiceClientConstructor & {
-    service: grpc.ServiceDefinition;
-  };
-
-  const server = new grpc.Server();
-  server.addService(fulfillmentService.service, {
-    Fulfill: (
-      call: grpc.ServerUnaryCall<FulfillRequest, FulfillResult>,
-      callback: grpc.sendUnaryData<FulfillResult>,
-    ) => {
-      try {
-        const result = handleFulfill(call.request);
-        callback(null, result);
-      } catch (error) {
-        callback({
-          code: grpc.status.INTERNAL,
-          message: error instanceof Error ? error.message : "internal_error",
-        });
-      }
-    },
-  });
-
-  const address = `${config.grpcHost}:${config.grpcPort}`;
-  server.bindAsync(address, grpc.ServerCredentials.createInsecure(), (err) => {
-    if (err) {
-      throw err;
-    }
-    server.start();
-    console.log(`gRPC listening on ${address}`);
-  });
-}
-
 function startHttpServer() {
   const app = express();
 
@@ -97,7 +50,7 @@ function startHttpServer() {
       return;
     }
 
-    let event: any;
+    let event: unknown;
     try {
       event = JSON.parse(rawBody);
     } catch {
@@ -105,22 +58,28 @@ function startHttpServer() {
       return;
     }
 
-    if (event?.event !== "invoice.paid") {
+    const parsed = webhookSchema.safeParse(event);
+    if (!parsed.success) {
+      res.status(400).json({ error: "invalid_payload" });
+      return;
+    }
+
+    if (parsed.data.event !== "invoice.paid") {
       res.status(200).json({ ignored: true });
       return;
     }
 
-    const idempotencyId = event?.data?.idempotencyId ?? "";
-    const metadata = event?.data?.metadata ?? {};
-    const request: FulfillRequest = {
-      idempotency_id: idempotencyId,
-      media_unlock: {
-        asset_id: typeof metadata.assetId === "string" ? metadata.assetId : "",
-        buyer_ref: typeof metadata.buyerRef === "string" ? metadata.buyerRef : "anonymous",
-      },
-    };
+    const metadataResult = metadataSchema.safeParse(parsed.data.data.metadata ?? null);
+    if (!metadataResult.success) {
+      res.status(422).json({ error: "invalid_metadata" });
+      return;
+    }
 
-    const result = handleFulfill(request);
+    const result = fulfillMediaUnlock({
+      idempotencyId: parsed.data.data.idempotencyId,
+      assetId: metadataResult.data.assetId,
+      buyerRef: metadataResult.data.buyerRef ?? "anonymous",
+    });
     if (result.status === STATUS_COMPLETED) {
       res.status(200).json(result);
       return;
@@ -178,5 +137,4 @@ function startHttpServer() {
 }
 
 validateConfig();
-startGrpcServer();
 startHttpServer();
