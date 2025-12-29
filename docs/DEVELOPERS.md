@@ -124,7 +124,7 @@ To connect miupay with `media-fulfillment` (or any compatible fulfillment servic
 1. Run `media-fulfillment` with a webhook secret:
 
 ```bash
-cd media-fulfillment
+cd fulfillments/media
 WEBHOOK_SECRET=change-me \
 TOKEN_SECRET=change-me \
 MEDIA_ROOT=./media \

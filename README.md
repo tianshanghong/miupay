@@ -22,3 +22,11 @@ npm install && npm run build && node dist/index.js
 ```
 
 Developer guide: `docs/DEVELOPERS.md`.
+
+## Docker images
+
+```bash
+docker build -t miupay:latest .
+cd fulfillments/media
+docker build -t media-fulfillment:latest .
+```
