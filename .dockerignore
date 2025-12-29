@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.gitignore
+Dockerfile
+*.log
+fulfillments/media/node_modules
+fulfillments/media/dist
+fulfillments/media/media

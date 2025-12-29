@@ -8,13 +8,19 @@ Minimal fulfillment service for media unlocks. It exposes:
 ## Quick start
 
 ```bash
-cd media-fulfillment
+cd fulfillments/media
 npm install
 WEBHOOK_SECRET=change-me \
 TOKEN_SECRET=change-me \
 MEDIA_ROOT=./media \
 PUBLIC_BASE_URL=http://localhost:4001 \
 npm run dev
+```
+
+## Docker image
+
+```bash
+docker build -t media-fulfillment:latest .
 ```
 
 ## Configuration
