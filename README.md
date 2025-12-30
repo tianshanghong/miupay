@@ -42,3 +42,9 @@ node dist/index.js
 `MIUPAY_FULFILLMENT_SECRET` is required when any fulfillment module is enabled (e.g., `fulfillments.media.enabled: true`).
 
 Developer guide: `docs/DEVELOPERS.md`.
+
+## Docker image
+
+```bash
+docker build -t miupay:latest .
+```
