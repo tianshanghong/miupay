@@ -165,7 +165,6 @@ export type MediaEntitlement = {
   id: string;
   idempotencyId: string;
   assetId: string;
-  buyerRef: string;
   createdAt: number;
 };
 

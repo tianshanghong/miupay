@@ -84,7 +84,7 @@ State is written atomically using `state.json.tmp` then `rename()`.
 ## API
 
 - `GET /api/products`
-- `POST /api/invoices` `{ "productId": "...", "metadata": { "assetId": "...", "buyerRef": "..." } }` (metadata required only for products with media fulfillment)
+- `POST /api/invoices` `{ "productId": "...", "metadata": { "assetId": "..." } }` (metadata required only for products with media fulfillment)
 - `GET /api/invoices/:id` (id is `idempotencyId`)
 - `GET /admin/deposits?match=unmatched&chainId=&tokenId=` (Bearer token)
 - Webhook events: `invoice.paid` and `invoice.expired` are delivered to configured endpoints.
@@ -96,7 +96,7 @@ Create an invoice:
 ```bash
 curl -X POST http://localhost:3000/api/invoices \
   -H 'Content-Type: application/json' \
-  -d '{"productId":"coffee","metadata":{"assetId":"img_123","buyerRef":"user_42"}}'
+  -d '{"productId":"coffee","metadata":{"assetId":"img_123"}}'
 ```
 
 Check an invoice:
@@ -143,12 +143,12 @@ Media fulfillment runs inside the miupay process. Enable it in config.json and p
 export MIUPAY_FULFILLMENT_SECRET="<base64-encoded 32-byte secret>"
 ```
 
-3. For products with media fulfillment, create invoices with `metadata.assetId` (required, must exist under `mediaRoot`) and `metadata.buyerRef` (optional):
+3. For products with media fulfillment, create invoices with `metadata.assetId` (required, must exist under `mediaRoot`):
 
 ```bash
 curl -X POST http://localhost:3000/api/invoices \
   -H 'Content-Type: application/json' \
-  -d '{"productId":"coffee","metadata":{"assetId":"test-asset","buyerRef":"user-1"}}'
+  -d '{"productId":"coffee","metadata":{"assetId":"test-asset"}}'
 ```
 
 4. After the invoice is paid, your frontend can fetch the access URL
@@ -183,10 +183,9 @@ Example `invoice.paid`:
     "expectedAmount": "100001",
     "baseAmount": "100000",
     "verificationCode": "001",
-    "metadata": {
-      "assetId": "img_123",
-      "buyerRef": "user_42"
-    },
+      "metadata": {
+        "assetId": "img_123"
+      },
     "status": "PAID",
     "createdAt": 1730000000000,
     "expiresAt": 1730001800000,
@@ -214,10 +213,9 @@ Example `invoice.expired`:
     "expectedAmount": "100001",
     "baseAmount": "100000",
     "verificationCode": "001",
-    "metadata": {
-      "assetId": "img_123",
-      "buyerRef": "user_42"
-    },
+      "metadata": {
+        "assetId": "img_123"
+      },
     "status": "EXPIRED",
     "createdAt": 1730000000000,
     "expiresAt": 1730001800000,

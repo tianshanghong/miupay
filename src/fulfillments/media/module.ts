@@ -16,7 +16,6 @@ import { resolveMediaAssetPath } from "./assets.js";
 const metadataSchema = z
   .object({
     assetId: z.string().min(1),
-    buyerRef: z.string().min(1).optional(),
   })
   .passthrough();
 
@@ -79,7 +78,7 @@ function buildAccessUrl(baseUrl: string, assetId: string, token: string): string
 
 async function ensureEntitlement(
   store: StateStore,
-  params: { idempotencyId: string; assetId: string; buyerRef: string },
+  params: { idempotencyId: string; assetId: string },
 ): Promise<MediaEntitlement> {
   return store.withLock((state) => {
     const mediaState = ensureMediaState(state);
@@ -98,7 +97,6 @@ async function ensureEntitlement(
       id: entitlementId,
       idempotencyId: params.idempotencyId,
       assetId: params.assetId,
-      buyerRef: params.buyerRef,
       createdAt: Date.now(),
     };
     mediaState.entitlements[entitlementId] = entitlement;
@@ -114,7 +112,6 @@ function parseMetadata(invoice: Invoice) {
   }
   return {
     assetId: parsed.data.assetId,
-    buyerRef: parsed.data.buyerRef ?? "anonymous",
   };
 }
 
@@ -199,7 +196,6 @@ export function buildMediaModule(options: MediaModuleOptions): FulfillmentModule
       await ensureEntitlement(options.store, {
         idempotencyId: invoice.idempotencyId,
         assetId: metadata.assetId,
-        buyerRef: metadata.buyerRef,
       });
     },
   };
