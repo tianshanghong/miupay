@@ -1,9 +1,11 @@
 import express from "express";
 import crypto from "crypto";
 import type { ConfigIndex } from "./config.js";
+import type { FulfillmentRegistry } from "./fulfillments/registry.js";
 import type { StateStore } from "./stateStore.js";
 import type { Invoice } from "./types.js";
 import { deriveAta } from "./chains/solanaRpc.js";
+import { registerFulfillmentRoutes } from "./fulfillments/registry.js";
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 30;
@@ -107,7 +109,11 @@ function isActivePending(invoice: Invoice, now: number) {
   return invoice.status === "PENDING" && invoice.expiresAt > now;
 }
 
-export function createServer(configIndex: ConfigIndex, store: StateStore) {
+export function createServer(
+  configIndex: ConfigIndex,
+  store: StateStore,
+  registry: FulfillmentRegistry,
+) {
   const app = express();
   app.use(express.json({ limit: "1mb" }));
 
@@ -286,6 +292,8 @@ export function createServer(configIndex: ConfigIndex, store: StateStore) {
 
     res.json({ deposits: entries });
   });
+
+  registerFulfillmentRoutes(app, registry);
 
   return app;
 }

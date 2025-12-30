@@ -1,6 +1,11 @@
 export type InvoiceStatus = "PENDING" | "PAID" | "EXPIRED";
 
 export type WebhookEvent = "invoice.paid" | "invoice.expired";
+export type FulfillmentEventType = WebhookEvent;
+export type FulfillmentEvent = {
+  type: FulfillmentEventType;
+  invoice: Invoice;
+};
 
 export type ProductConfig = {
   id: string;
@@ -42,6 +47,26 @@ export type WebhookEndpointConfig = {
   events: WebhookEvent[];
 };
 
+export type MediaFulfillmentConfig = {
+  enabled: boolean;
+  mediaRoot?: string;
+  publicBaseUrl?: string;
+  tokenTtlMs?: number;
+  rateLimitMax?: number;
+  rateLimitWindowMs?: number;
+};
+
+export type TelegramFulfillmentConfig = {
+  enabled: boolean;
+  botToken?: string;
+  targetChatId?: string;
+};
+
+export type FulfillmentConfig = Record<string, unknown> & {
+  media?: MediaFulfillmentConfig;
+  telegram?: TelegramFulfillmentConfig;
+};
+
 export type AppConfig = {
   server: {
     port: number;
@@ -60,6 +85,7 @@ export type AppConfig = {
   webhooks: {
     endpoints: WebhookEndpointConfig[];
   };
+  fulfillments?: FulfillmentConfig;
   admin: {
     bearerToken: string;
   };
@@ -121,10 +147,41 @@ export type WebhookQueueItem = {
   createdAt: number;
 };
 
+export type FulfillmentQueueItem = {
+  id: string;
+  moduleId: string;
+  event: FulfillmentEventType;
+  idempotencyId: string;
+  attempt: number;
+  nextAttemptAt: number;
+  createdAt: number;
+  lastError?: string;
+};
+
+export type MediaEntitlement = {
+  id: string;
+  idempotencyId: string;
+  assetId: string;
+  buyerRef: string;
+  createdAt: number;
+};
+
+export type MediaFulfillmentState = {
+  entitlements: Record<string, MediaEntitlement>;
+  idempotencyIndex: Record<string, string>;
+};
+
+export type FulfillmentsState = Record<string, unknown> & {
+  media?: MediaFulfillmentState;
+};
+
 export type State = {
   checkpoints: Record<string, Checkpoint>;
   invoices: Record<string, Invoice>;
   paymentsIndex: Record<string, PaymentIndexEntry>;
   webhookQueue: WebhookQueueItem[];
   webhookDeadLetter: WebhookQueueItem[];
+  fulfillmentQueue: FulfillmentQueueItem[];
+  fulfillmentDeadLetter: FulfillmentQueueItem[];
+  fulfillments: FulfillmentsState;
 };

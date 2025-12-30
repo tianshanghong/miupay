@@ -4,7 +4,10 @@ import { z } from "zod";
 import type {
   AppConfig,
   ChainConfig,
+  FulfillmentConfig,
+  MediaFulfillmentConfig,
   ProductConfig,
+  TelegramFulfillmentConfig,
   TokenConfig,
   WebhookEndpointConfig,
   WebhookEvent,
@@ -26,6 +29,28 @@ const webhookEndpointSchema: z.ZodType<WebhookEndpointConfig> = z.object({
   secret: z.string().min(1),
   events: z.array(webhookEventSchema).min(1),
 });
+
+const mediaFulfillmentSchema: z.ZodType<MediaFulfillmentConfig> = z.object({
+  enabled: z.boolean(),
+  mediaRoot: z.string().min(1).optional(),
+  publicBaseUrl: z.string().url().optional(),
+  tokenTtlMs: z.number().int().min(1).optional(),
+  rateLimitMax: z.number().int().min(1).optional(),
+  rateLimitWindowMs: z.number().int().min(1).optional(),
+});
+
+const telegramFulfillmentSchema: z.ZodType<TelegramFulfillmentConfig> = z.object({
+  enabled: z.boolean(),
+  botToken: z.string().min(1).optional(),
+  targetChatId: z.string().min(1).optional(),
+});
+
+const fulfillmentSchema: z.ZodType<FulfillmentConfig> = z
+  .object({
+    media: mediaFulfillmentSchema.optional(),
+    telegram: telegramFulfillmentSchema.optional(),
+  })
+  .passthrough();
 
 const tokenSchema: z.ZodType<TokenConfig> = z.object({
   id: z.string().min(1),
@@ -76,6 +101,7 @@ const configSchema: z.ZodType<AppConfig> = z.object({
   webhooks: z.object({
     endpoints: z.array(webhookEndpointSchema),
   }),
+  fulfillments: fulfillmentSchema.optional(),
   admin: z.object({
     bearerToken: z.string().min(1),
   }),

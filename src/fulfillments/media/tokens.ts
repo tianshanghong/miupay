@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import { config } from "./config.js";
 
 export type TokenPayload = {
   entitlementId: string;
@@ -7,18 +6,18 @@ export type TokenPayload = {
   exp: number;
 };
 
-export function signToken(payload: TokenPayload): string {
+export function signToken(secret: Buffer, payload: TokenPayload): string {
   const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
-  const sig = crypto.createHmac("sha256", config.tokenSecret).update(body).digest("base64url");
+  const sig = crypto.createHmac("sha256", secret).update(body).digest("base64url");
   return `${body}.${sig}`;
 }
 
-export function verifyToken(token: string): TokenPayload | null {
+export function verifyToken(secret: Buffer, token: string): TokenPayload | null {
   const [body, sig] = token.split(".");
   if (!body || !sig) {
     return null;
   }
-  const expected = crypto.createHmac("sha256", config.tokenSecret).update(body).digest("base64url");
+  const expected = crypto.createHmac("sha256", secret).update(body).digest("base64url");
   const sigBuf = Buffer.from(sig);
   const expectedBuf = Buffer.from(expected);
   if (sigBuf.length !== expectedBuf.length) {

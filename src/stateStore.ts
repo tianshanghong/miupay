@@ -8,6 +8,9 @@ const emptyState: State = {
   paymentsIndex: {},
   webhookQueue: [],
   webhookDeadLetter: [],
+  fulfillmentQueue: [],
+  fulfillmentDeadLetter: [],
+  fulfillments: {},
 };
 
 async function loadStateFile(statePath: string): Promise<State> {
@@ -22,6 +25,9 @@ async function loadStateFile(statePath: string): Promise<State> {
       paymentsIndex: parsed.paymentsIndex ?? {},
       webhookQueue: parsed.webhookQueue ?? [],
       webhookDeadLetter: parsed.webhookDeadLetter ?? [],
+      fulfillmentQueue: parsed.fulfillmentQueue ?? [],
+      fulfillmentDeadLetter: parsed.fulfillmentDeadLetter ?? [],
+      fulfillments: parsed.fulfillments ?? {},
     };
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
