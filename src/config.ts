@@ -5,6 +5,7 @@ import type {
   AppConfig,
   ChainConfig,
   FulfillmentConfig,
+  FulfillmentModuleId,
   MediaFulfillmentConfig,
   ProductConfig,
   TelegramFulfillmentConfig,
@@ -29,6 +30,8 @@ const webhookEndpointSchema: z.ZodType<WebhookEndpointConfig> = z.object({
   secret: z.string().min(1),
   events: z.array(webhookEventSchema).min(1),
 });
+
+const fulfillmentModuleSchema = z.enum(["media", "telegram"]);
 
 const mediaFulfillmentSchema: z.ZodType<MediaFulfillmentConfig> = z.object({
   enabled: z.boolean(),
@@ -81,6 +84,7 @@ const productSchema: z.ZodType<ProductConfig> = z.object({
   chainId: z.string().min(1),
   tokenId: z.string().min(1),
   active: z.boolean(),
+  fulfillments: z.array(fulfillmentModuleSchema).optional(),
 });
 
 const configSchema: z.ZodType<AppConfig> = z.object({
@@ -158,6 +162,27 @@ function validateChains(chains: ChainConfig[]) {
   }
 }
 
+function validateProductFulfillments(config: AppConfig) {
+  const enabled = new Set<FulfillmentModuleId>();
+  if (config.fulfillments?.media?.enabled) {
+    enabled.add("media");
+  }
+  if (config.fulfillments?.telegram?.enabled) {
+    enabled.add("telegram");
+  }
+
+  for (const product of config.products) {
+    if (!product.fulfillments || product.fulfillments.length === 0) {
+      continue;
+    }
+    for (const moduleId of product.fulfillments) {
+      if (!enabled.has(moduleId)) {
+        throw new Error(`product ${product.id} references disabled fulfillment ${moduleId}`);
+      }
+    }
+  }
+}
+
 function buildIndexes(config: AppConfig): Omit<ConfigIndex, "solanaTokenProgramsByChain"> {
   assertUnique(
     "chain id",
@@ -173,6 +198,7 @@ function buildIndexes(config: AppConfig): Omit<ConfigIndex, "solanaTokenPrograms
   );
 
   validateChains(config.chains);
+  validateProductFulfillments(config);
 
   const productsById = new Map<string, ProductConfig>();
   for (const product of config.products) {

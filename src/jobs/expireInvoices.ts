@@ -17,7 +17,7 @@ export async function expireInvoices(store: StateStore, configIndex: ConfigIndex
       }
       invoice.status = "EXPIRED";
       enqueueWebhooks(state, "invoice.expired", invoice.idempotencyId, configIndex, now);
-      enqueueFulfillments(state, "invoice.expired", invoice.idempotencyId, configIndex, now);
+      enqueueFulfillments(state, "invoice.expired", invoice, configIndex, now);
     }
   });
 }

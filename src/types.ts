@@ -7,6 +7,8 @@ export type FulfillmentEvent = {
   invoice: Invoice;
 };
 
+export type FulfillmentModuleId = "media" | "telegram";
+
 export type ProductConfig = {
   id: string;
   name: string;
@@ -14,6 +16,7 @@ export type ProductConfig = {
   chainId: string;
   tokenId: string;
   active: boolean;
+  fulfillments?: FulfillmentModuleId[];
 };
 
 export type TokenConfig = {

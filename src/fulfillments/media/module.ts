@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import path from "path";
 import type express from "express";
 import { z } from "zod";
 import type {
@@ -12,6 +11,7 @@ import type { StateStore } from "../../stateStore.js";
 import type { FulfillmentContext, FulfillmentModule } from "../registry.js";
 import { ensureMediaState, getMediaEntitlement } from "./state.js";
 import { signToken, verifyToken } from "./tokens.js";
+import { resolveMediaAssetPath } from "./assets.js";
 
 const metadataSchema = z
   .object({
@@ -175,9 +175,8 @@ export function buildMediaModule(options: MediaModuleOptions): FulfillmentModule
           return;
         }
 
-        const root = path.resolve(resolved.mediaRoot);
-        const filePath = path.resolve(root, req.params.assetId);
-        if (!filePath.startsWith(root + path.sep) && filePath !== root) {
+        const filePath = resolveMediaAssetPath(resolved.mediaRoot, req.params.assetId);
+        if (!filePath) {
           res.status(400).json({ error: "invalid_asset_path" });
           return;
         }

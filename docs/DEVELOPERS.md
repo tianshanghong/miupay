@@ -48,7 +48,8 @@ Create a `config.json` like this (single-chain example):
       "amount": "100000",
       "chainId": "eth-sepolia",
       "tokenId": "usdc",
-      "active": true
+      "active": true,
+      "fulfillments": ["media"]
     }
   ],
   "webhooks": { "endpoints": [] },
@@ -61,7 +62,7 @@ Amounts are base-unit integers. For Solana, use `type: "solana"`, set `receiveOw
 ## Config Overview
 
 - `chains`: chain definitions (EVM or Solana) + tokens on each chain.
-- `products`: static catalog, one product per `(chainId, tokenId, amount)`.
+- `products`: static catalog, one product per `(chainId, tokenId, amount)`; optional `fulfillments` array (defaults to enabled modules, use `[]` to opt out).
 - `webhooks`: one or more endpoints (fulfillment modules or downstream systems) that receive `invoice.paid` and `invoice.expired` events.
 - `invoice.ttlMinutes`: invoice expiration window.
 - `invoice.verificationDigits`: number of tail digits used as per-invoice verification code.
@@ -83,7 +84,7 @@ State is written atomically using `state.json.tmp` then `rename()`.
 ## API
 
 - `GET /api/products`
-- `POST /api/invoices` `{ "productId": "...", "metadata": { "assetId": "...", "buyerRef": "..." } }`
+- `POST /api/invoices` `{ "productId": "...", "metadata": { "assetId": "...", "buyerRef": "..." } }` (metadata required only for products with media fulfillment)
 - `GET /api/invoices/:id` (id is `idempotencyId`)
 - `GET /admin/deposits?match=unmatched&chainId=&tokenId=` (Bearer token)
 - Webhook events: `invoice.paid` and `invoice.expired` are delivered to configured endpoints.
@@ -142,7 +143,7 @@ Media fulfillment runs inside the miupay process. Enable it in config.json and p
 export MIUPAY_FULFILLMENT_SECRET="<base64-encoded 32-byte secret>"
 ```
 
-3. Create invoices with `metadata.assetId` (required) and `metadata.buyerRef` (optional):
+3. For products with media fulfillment, create invoices with `metadata.assetId` (required, must exist under `mediaRoot`) and `metadata.buyerRef` (optional):
 
 ```bash
 curl -X POST http://localhost:3000/api/invoices \

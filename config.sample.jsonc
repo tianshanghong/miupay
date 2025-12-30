@@ -67,7 +67,9 @@
       // References chains[].tokens[].id
       "tokenId": "usdc",
       // Whether it can be sold/created
-      "active": true
+      "active": true,
+      // Optional per-product fulfillment modules (defaults to enabled modules)
+      "fulfillments": ["media"]
     }
   ],
   // Webhook delivery config (external integrations only)

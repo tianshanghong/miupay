@@ -51,7 +51,7 @@ export async function settleInvoices(store: StateStore, configIndex: ConfigIndex
           target.status = "PAID";
           target.paidAt = now;
           enqueueWebhooks(state, "invoice.paid", target.idempotencyId, configIndex, now);
-          enqueueFulfillments(state, "invoice.paid", target.idempotencyId, configIndex, now);
+          enqueueFulfillments(state, "invoice.paid", target, configIndex, now);
         }
       });
     }
@@ -87,7 +87,7 @@ export async function settleInvoices(store: StateStore, configIndex: ConfigIndex
           target.status = "PAID";
           target.paidAt = now;
           enqueueWebhooks(state, "invoice.paid", target.idempotencyId, configIndex, now);
-          enqueueFulfillments(state, "invoice.paid", target.idempotencyId, configIndex, now);
+          enqueueFulfillments(state, "invoice.paid", target, configIndex, now);
         }
       });
     }

@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import type { ConfigIndex } from "../config.js";
-import type { FulfillmentEventType, FulfillmentQueueItem, State } from "../types.js";
+import type { FulfillmentEventType, FulfillmentQueueItem, Invoice, State } from "../types.js";
+import { productHasFulfillment } from "./selection.js";
 
 const MAX_ATTEMPTS = 3;
 const BASE_BACKOFF_MS = 5_000;
@@ -8,7 +9,7 @@ const BASE_BACKOFF_MS = 5_000;
 export function enqueueFulfillments(
   state: State,
   event: FulfillmentEventType,
-  idempotencyId: string,
+  invoice: Invoice,
   configIndex: ConfigIndex,
   now: number,
 ) {
@@ -17,12 +18,17 @@ export function enqueueFulfillments(
     return;
   }
 
-  if (fulfillments.media?.enabled && event === "invoice.paid") {
+  const product = configIndex.productsById.get(invoice.productId);
+  if (!product) {
+    return;
+  }
+
+  if (productHasFulfillment(product, "media", fulfillments) && event === "invoice.paid") {
     const item: FulfillmentQueueItem = {
       id: crypto.randomUUID(),
       moduleId: "media",
       event,
-      idempotencyId,
+      idempotencyId: invoice.idempotencyId,
       attempt: 0,
       nextAttemptAt: now,
       createdAt: now,

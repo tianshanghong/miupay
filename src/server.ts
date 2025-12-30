@@ -1,11 +1,14 @@
 import express from "express";
 import crypto from "crypto";
+import fs from "fs/promises";
 import type { ConfigIndex } from "./config.js";
 import type { FulfillmentRegistry } from "./fulfillments/registry.js";
 import type { StateStore } from "./stateStore.js";
 import type { Invoice } from "./types.js";
 import { deriveAta } from "./chains/solanaRpc.js";
 import { registerFulfillmentRoutes } from "./fulfillments/registry.js";
+import { resolveMediaAssetPath } from "./fulfillments/media/assets.js";
+import { productHasFulfillment } from "./fulfillments/selection.js";
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 30;
@@ -135,6 +138,35 @@ export function createServer(
     if (!product || !product.active) {
       res.status(400).json({ error: "invalid_product" });
       return;
+    }
+
+    if (productHasFulfillment(product, "media", configIndex.config.fulfillments)) {
+      const assetId = metadata?.assetId;
+      if (!assetId || assetId.length === 0) {
+        res.status(400).json({ error: "invalid_metadata" });
+        return;
+      }
+      const mediaConfig = configIndex.config.fulfillments?.media;
+      if (!mediaConfig?.enabled) {
+        res.status(500).json({ error: "media_fulfillment_disabled" });
+        return;
+      }
+      const mediaRoot = mediaConfig.mediaRoot ?? "./media";
+      const assetPath = resolveMediaAssetPath(mediaRoot, assetId);
+      if (!assetPath) {
+        res.status(400).json({ error: "invalid_asset_path" });
+        return;
+      }
+      try {
+        const stat = await fs.stat(assetPath);
+        if (!stat.isFile()) {
+          res.status(400).json({ error: "asset_not_found" });
+          return;
+        }
+      } catch {
+        res.status(400).json({ error: "asset_not_found" });
+        return;
+      }
     }
 
     const token = configIndex.tokensByChain.get(product.chainId)?.get(product.tokenId);
