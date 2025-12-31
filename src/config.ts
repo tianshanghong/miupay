@@ -250,11 +250,17 @@ function buildIndexes(config: AppConfig): Omit<ConfigIndex, "solanaTokenPrograms
   };
 }
 
+export function validateConfig(config: unknown): AppConfig {
+  const parsed = configSchema.parse(config);
+  buildIndexes(parsed);
+  return parsed;
+}
+
 export async function loadConfig(configPath?: string): Promise<ConfigIndex> {
   const resolvedPath = configPath ?? path.join(process.cwd(), "config.json");
   const raw = await fs.readFile(resolvedPath, "utf8");
   const parsed = JSON.parse(raw);
-  const config = configSchema.parse(parsed);
+  const config = validateConfig(parsed);
   const index = buildIndexes(config);
   const solanaTokenProgramsByChain = await resolveSolanaTokenPrograms(config);
   return {
