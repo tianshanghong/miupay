@@ -1,6 +1,7 @@
 import type { ConfigIndex } from "../config.js";
 import type { StateStore } from "../stateStore.js";
 import type { Invoice } from "../types.js";
+import { enqueueFulfillments } from "../fulfillments/queue.js";
 import { enqueueWebhooks } from "../webhooks.js";
 import { getBlockNumber } from "../chains/evmRpc.js";
 import { getSignatureStatuses } from "../chains/solanaRpc.js";
@@ -50,6 +51,7 @@ export async function settleInvoices(store: StateStore, configIndex: ConfigIndex
           target.status = "PAID";
           target.paidAt = now;
           enqueueWebhooks(state, "invoice.paid", target.idempotencyId, configIndex, now);
+          enqueueFulfillments(state, "invoice.paid", target, configIndex, now);
         }
       });
     }
@@ -85,6 +87,7 @@ export async function settleInvoices(store: StateStore, configIndex: ConfigIndex
           target.status = "PAID";
           target.paidAt = now;
           enqueueWebhooks(state, "invoice.paid", target.idempotencyId, configIndex, now);
+          enqueueFulfillments(state, "invoice.paid", target, configIndex, now);
         }
       });
     }

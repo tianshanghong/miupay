@@ -1,5 +1,6 @@
 import type { ConfigIndex } from "../config.js";
 import type { StateStore } from "../stateStore.js";
+import { enqueueFulfillments } from "../fulfillments/queue.js";
 import { enqueueWebhooks } from "../webhooks.js";
 
 export async function expireInvoices(store: StateStore, configIndex: ConfigIndex, now: number) {
@@ -16,6 +17,7 @@ export async function expireInvoices(store: StateStore, configIndex: ConfigIndex
       }
       invoice.status = "EXPIRED";
       enqueueWebhooks(state, "invoice.expired", invoice.idempotencyId, configIndex, now);
+      enqueueFulfillments(state, "invoice.expired", invoice, configIndex, now);
     }
   });
 }

@@ -3,5 +3,8 @@
   "invoices": {},
   "paymentsIndex": {},
   "webhookQueue": [],
-  "webhookDeadLetter": []
+  "webhookDeadLetter": [],
+  "fulfillmentQueue": [],
+  "fulfillmentDeadLetter": [],
+  "fulfillments": {}
 }

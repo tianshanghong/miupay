@@ -4,6 +4,4 @@ dist
 .gitignore
 Dockerfile
 *.log
-fulfillments/media/node_modules
-fulfillments/media/dist
-fulfillments/media/media
+media

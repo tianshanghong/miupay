@@ -67,21 +67,33 @@
       // References chains[].tokens[].id
       "tokenId": "usdc",
       // Whether it can be sold/created
-      "active": true
+      "active": true,
+      // Optional per-product fulfillment modules (defaults to enabled modules)
+      "fulfillments": ["media"]
     }
   ],
-  // Webhook delivery config
+  // Webhook delivery config (external integrations only)
   "webhooks": {
     "endpoints": [
       {
-        // Media fulfillment webhook endpoint
-        "id": "media-fulfillment",
-        "url": "http://localhost:4001/webhooks/miupay",
+        "id": "example-webhook",
+        "url": "https://example.com/webhooks/miupay",
         "secret": "change-me",
         "events": ["invoice.paid"]
       }
-      // Add more fulfillment modules by listing additional endpoints here.
+      // Add more external endpoints here.
     ]
+  },
+  // In-process fulfillment modules
+  "fulfillments": {
+    "media": {
+      "enabled": true,
+      "mediaRoot": "./media",
+      "publicBaseUrl": "https://<tenant_id>.cloud.miupay.xyz",
+      "tokenTtlMs": 900000,
+      "rateLimitMax": 120,
+      "rateLimitWindowMs": 60000
+    }
   },
   // Admin auth
   "admin": {

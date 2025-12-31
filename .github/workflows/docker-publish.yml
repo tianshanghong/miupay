@@ -22,10 +22,6 @@ jobs:
             context: .
             dockerfile: ./Dockerfile
             image: ghcr.io/${{ github.repository_owner }}/miupay
-          - name: media-fulfillment
-            context: ./fulfillments/media
-            dockerfile: ./fulfillments/media/Dockerfile
-            image: ghcr.io/${{ github.repository_owner }}/media-fulfillment
 
     steps:
       - name: Checkout

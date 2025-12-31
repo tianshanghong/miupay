@@ -4,5 +4,4 @@ dist/
 config.json
 state.json
 *.swp
-fulfillments/media/media/
-fulfillments/media/store.json
+/media/

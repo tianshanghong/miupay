@@ -1,16 +1,19 @@
 import { loadConfig } from "./config.js";
+import { buildFulfillmentRegistry } from "./fulfillments/registry.js";
 import { initStateStore } from "./stateStore.js";
 import { createServer } from "./server.js";
 import { expireInvoices } from "./jobs/expireInvoices.js";
 import { scanEvm } from "./jobs/scanEvm.js";
 import { scanSolana } from "./jobs/scanSolana.js";
 import { settleInvoices } from "./jobs/settleInvoices.js";
+import { deliverFulfillments } from "./jobs/deliverFulfillments.js";
 import { deliverWebhooks } from "./jobs/deliverWebhooks.js";
 
 async function main() {
   const configIndex = await loadConfig();
   const store = await initStateStore();
-  const app = createServer(configIndex, store);
+  const registry = buildFulfillmentRegistry(configIndex, store);
+  const app = createServer(configIndex, store, registry);
 
   const port = configIndex.config.server.port;
   app.listen(port, () => {
@@ -30,6 +33,7 @@ async function main() {
       await settleInvoices(store, configIndex, now);
       await expireInvoices(store, configIndex, now);
       await deliverWebhooks(store, configIndex, now);
+      await deliverFulfillments(store, registry, now);
     } catch (error) {
       console.error("job loop error", error);
     } finally {
