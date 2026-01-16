@@ -1,7 +1,7 @@
 import type { ConfigIndex } from "../config.js";
 import type { StateStore } from "../stateStore.js";
-import type { WebhookQueueItem } from "../types.js";
-import { buildWebhookPayload, computeNextAttempt, signPayload, shouldDeadLetter } from "../webhooks.js";
+import type { WebhookQueueItem } from "../core/types.js";
+import { buildWebhookPayload, computeNextAttempt, signPayload, shouldDeadLetter } from "../core/webhooks.js";
 
 type DeliveryAttempt = {
   item: WebhookQueueItem;

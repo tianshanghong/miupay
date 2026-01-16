@@ -1,5 +1,5 @@
 import { loadConfig } from "./config.js";
-import { buildFulfillmentRegistry } from "./fulfillments/registry.js";
+import { buildFulfillmentRegistry } from "./core/fulfillments/registry.js";
 import { initStateStore } from "./stateStore.js";
 import { createServer } from "./server.js";
 import { expireInvoices } from "./jobs/expireInvoices.js";

@@ -1,8 +1,8 @@
 import type { ConfigIndex } from "../config.js";
 import type { StateStore } from "../stateStore.js";
-import type { Invoice } from "../types.js";
-import { enqueueFulfillments } from "../fulfillments/queue.js";
-import { enqueueWebhooks } from "../webhooks.js";
+import type { Invoice } from "../core/types.js";
+import { enqueueFulfillments } from "../core/fulfillments/queue.js";
+import { enqueueWebhooks } from "../core/webhooks.js";
 import { getBlockNumber } from "../chains/evmRpc.js";
 import { getSignatureStatuses } from "../chains/solanaRpc.js";
 

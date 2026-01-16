@@ -7,7 +7,7 @@ import type {
   FulfillmentEventType,
   Invoice,
 } from "../../types.js";
-import type { StateStore } from "../../stateStore.js";
+import type { StateStore } from "../../../stateStore.js";
 import type { FulfillmentContext, FulfillmentModule } from "../registry.js";
 import { ensureMediaState, getMediaEntitlement } from "./state.js";
 import { signToken, verifyToken } from "./tokens.js";

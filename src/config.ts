@@ -12,7 +12,7 @@ import type {
   TokenConfig,
   WebhookEndpointConfig,
   WebhookEvent,
-} from "./types.js";
+} from "./core/types.js";
 import { getAccountOwner } from "./chains/solanaRpc.js";
 
 const amountSchema = z

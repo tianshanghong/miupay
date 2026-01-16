@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import type { ConfigIndex } from "../config.js";
+import type { ConfigIndex } from "../../config.js";
 import type { FulfillmentEventType, FulfillmentQueueItem, Invoice, State } from "../types.js";
 import { productHasFulfillment } from "./selection.js";
 
