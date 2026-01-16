@@ -1,7 +1,7 @@
 import type { ConfigIndex } from "../config.js";
-import type { PaymentIndexEntry } from "../types.js";
+import type { PaymentIndexEntry } from "../core/types.js";
 import type { StateStore } from "../stateStore.js";
-import { attachPaymentToInvoice, selectMatchingInvoice } from "../matching.js";
+import { attachPaymentToInvoice, selectMatchingInvoice } from "../core/matching.js";
 import {
   deriveAta,
   getSignaturesForAddress,

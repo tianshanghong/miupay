@@ -1,6 +1,6 @@
 import express from "express";
-import type { ConfigIndex } from "../config.js";
-import type { StateStore } from "../stateStore.js";
+import type { ConfigIndex } from "../../config.js";
+import type { StateStore } from "../../stateStore.js";
 import type { FulfillmentEventType, Invoice } from "../types.js";
 import { buildMediaModule } from "./media/module.js";
 import { deriveModuleSecret, getFulfillmentSecret } from "./secrets.js";

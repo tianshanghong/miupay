@@ -1,7 +1,7 @@
 import type { StateStore } from "../stateStore.js";
-import type { FulfillmentQueueItem } from "../types.js";
-import type { FulfillmentRegistry, FulfillmentContext } from "../fulfillments/registry.js";
-import { computeNextAttempt, shouldDeadLetter } from "../fulfillments/queue.js";
+import type { FulfillmentQueueItem } from "../core/types.js";
+import type { FulfillmentRegistry, FulfillmentContext } from "../core/fulfillments/registry.js";
+import { computeNextAttempt, shouldDeadLetter } from "../core/fulfillments/queue.js";
 
 type DeliveryAttempt = {
   item: FulfillmentQueueItem;
