@@ -1,15 +1,24 @@
 import type { Invoice, PaymentIndexEntry, State } from "./types.js";
 
+const WINDOW_MS = 2 * 60 * 1000;
+
+function isWithinWindow(invoice: Invoice, paymentTime: number) {
+  const lower = invoice.createdAt - WINDOW_MS;
+  const upper = invoice.expiresAt + WINDOW_MS;
+  return paymentTime >= lower && paymentTime <= upper;
+}
+
 export function selectMatchingInvoice(
   state: State,
   payment: PaymentIndexEntry,
-  now: number,
+  scanCoverageTime?: number,
 ): Invoice | null {
+  if (payment.paymentTime === undefined) {
+    return null;
+  }
+
   const matches = Object.values(state.invoices).filter((invoice) => {
     if (invoice.status !== "PENDING") {
-      return false;
-    }
-    if (invoice.expiresAt <= now) {
       return false;
     }
     if (invoice.chainId !== payment.chainId) {
@@ -22,6 +31,18 @@ export function selectMatchingInvoice(
       return false;
     }
     if (invoice.payment) {
+      return false;
+    }
+    if (invoice.receiveTo && payment.to !== invoice.receiveTo) {
+      return false;
+    }
+    if (!isWithinWindow(invoice, payment.paymentTime)) {
+      return false;
+    }
+    if (
+      scanCoverageTime !== undefined
+      && scanCoverageTime > invoice.expiresAt + WINDOW_MS
+    ) {
       return false;
     }
     return true;
@@ -38,9 +59,9 @@ export function selectMatchingInvoice(
 export function attachPaymentToInvoice(
   state: State,
   payment: PaymentIndexEntry,
-  now: number,
+  scanCoverageTime?: number,
 ): string | null {
-  const invoice = selectMatchingInvoice(state, payment, now);
+  const invoice = selectMatchingInvoice(state, payment, scanCoverageTime);
   if (!invoice) {
     return null;
   }

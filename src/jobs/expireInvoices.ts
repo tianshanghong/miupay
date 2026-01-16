@@ -3,6 +3,8 @@ import type { StateStore } from "../stateStore.js";
 import { enqueueFulfillments } from "../core/fulfillments/queue.js";
 import { enqueueWebhooks } from "../core/webhooks.js";
 
+const WINDOW_MS = 2 * 60 * 1000;
+
 export async function expireInvoices(store: StateStore, configIndex: ConfigIndex, now: number) {
   await store.withLock((state) => {
     for (const invoice of Object.values(state.invoices)) {
@@ -12,7 +14,12 @@ export async function expireInvoices(store: StateStore, configIndex: ConfigIndex
       if (invoice.payment) {
         continue;
       }
-      if (invoice.expiresAt > now) {
+      const checkpointKey = `${invoice.chainId}:${invoice.tokenId}`;
+      const scanCoverageTime = state.checkpoints[checkpointKey]?.cursorTimeMs;
+      if (scanCoverageTime === undefined) {
+        continue;
+      }
+      if (scanCoverageTime <= invoice.expiresAt + WINDOW_MS) {
         continue;
       }
       invoice.status = "EXPIRED";
