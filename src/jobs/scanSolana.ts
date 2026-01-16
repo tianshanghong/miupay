@@ -8,6 +8,7 @@ import {
   deriveAta,
   getBlockTime,
   getSignaturesForAddress,
+  getSlot,
   getTransaction,
 } from "../chains/solanaRpc.js";
 
@@ -104,6 +105,24 @@ export async function scanSolana(store: StateStore, configIndex: ConfigIndex, no
       }
 
       if (signatures.length === 0) {
+        const slot = await getSlot(chain.rpcUrl, commitment);
+        const headTime = await getBlockTime(chain.rpcUrl, slot);
+        if (headTime === null || headTime === undefined) {
+          continue;
+        }
+        const cursorTimeMs = headTime * 1000;
+        await store.withLock((state) => {
+          const checkpoint = state.checkpoints[checkpointKey];
+          if (checkpoint?.type === "solana") {
+            checkpoint.cursorTimeMs = cursorTimeMs;
+            return;
+          }
+          state.checkpoints[checkpointKey] = {
+            type: "solana",
+            lastSeenSignature: null,
+            cursorTimeMs,
+          };
+        });
         continue;
       }
 
