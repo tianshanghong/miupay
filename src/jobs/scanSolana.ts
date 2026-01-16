@@ -2,8 +2,11 @@ import type { ConfigIndex } from "../config.js";
 import type { PaymentIndexEntry } from "../core/types.js";
 import type { StateStore } from "../stateStore.js";
 import { attachPaymentToInvoice, selectMatchingInvoice } from "../core/matching.js";
+import { enqueueFulfillments } from "../core/fulfillments/queue.js";
+import { enqueueWebhooks } from "../core/webhooks.js";
 import {
   deriveAta,
+  getBlockTime,
   getSignaturesForAddress,
   getTransaction,
 } from "../chains/solanaRpc.js";
@@ -107,12 +110,23 @@ export async function scanSolana(store: StateStore, configIndex: ConfigIndex, no
       const newestSignature = signatures[0];
       const ordered = [...signatures].reverse();
       const payments: PaymentIndexEntry[] = [];
+      let latestObservedTimeMs: number | undefined;
 
       for (const signature of ordered) {
         const transaction = await getTransaction(chain.rpcUrl, signature, commitment);
         if (!transaction || !transaction.meta || transaction.meta.err) {
           continue;
         }
+        let blockTime = transaction.blockTime;
+        if (blockTime === null || blockTime === undefined) {
+          blockTime = await getBlockTime(chain.rpcUrl, transaction.slot);
+        }
+        if (blockTime === null || blockTime === undefined) {
+          continue;
+        }
+        const paymentTime = blockTime * 1000;
+        latestObservedTimeMs = paymentTime;
+
         const accountKeys = getAccountKeys(transaction.transaction.message);
         const ataIndex = accountKeys.findIndex((key) => key === ata);
         if (ataIndex === -1) {
@@ -145,28 +159,39 @@ export async function scanSolana(store: StateStore, configIndex: ConfigIndex, no
           to: ata,
           amount: delta.toString(),
           blockRef: transaction.slot,
+          paymentTime,
         });
       }
 
       await store.withLock((state) => {
-        const matchNow = Date.now();
         for (const payment of payments) {
           if (state.paymentsIndex[payment.ref]) {
             continue;
           }
-            state.paymentsIndex[payment.ref] = payment;
-            const match = selectMatchingInvoice(state, payment, matchNow);
-            if (match) {
-              const idempotencyId = attachPaymentToInvoice(state, payment, matchNow);
-              if (idempotencyId) {
-                payment.idempotencyId = idempotencyId;
+          state.paymentsIndex[payment.ref] = payment;
+          const match = selectMatchingInvoice(state, payment, latestObservedTimeMs);
+          if (match) {
+            const idempotencyId = attachPaymentToInvoice(state, payment, latestObservedTimeMs);
+            if (idempotencyId) {
+              payment.idempotencyId = idempotencyId;
+              const invoice = state.invoices[idempotencyId];
+              if (invoice && invoice.status === "PENDING") {
+                invoice.status = "PAID";
+                invoice.paidAt = payment.paymentTime ?? now;
+                enqueueWebhooks(state, "invoice.paid", idempotencyId, configIndex, now);
+                enqueueFulfillments(state, "invoice.paid", invoice, configIndex, now);
               }
             }
           }
-        state.checkpoints[checkpointKey] = {
-          type: "solana",
+        }
+        const checkpoint = {
+          type: "solana" as const,
           lastSeenSignature: newestSignature,
         };
+        if (latestObservedTimeMs !== undefined) {
+          checkpoint.cursorTimeMs = latestObservedTimeMs;
+        }
+        state.checkpoints[checkpointKey] = checkpoint;
       });
     }
   }

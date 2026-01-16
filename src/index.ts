@@ -5,7 +5,6 @@ import { createServer } from "./server.js";
 import { expireInvoices } from "./jobs/expireInvoices.js";
 import { scanEvm } from "./jobs/scanEvm.js";
 import { scanSolana } from "./jobs/scanSolana.js";
-import { settleInvoices } from "./jobs/settleInvoices.js";
 import { deliverFulfillments } from "./jobs/deliverFulfillments.js";
 import { deliverWebhooks } from "./jobs/deliverWebhooks.js";
 import { tickChainTime } from "./jobs/tickChainTime.js";
@@ -32,7 +31,6 @@ async function main() {
       await tickChainTime(store, configIndex, now);
       await scanEvm(store, configIndex, now);
       await scanSolana(store, configIndex, now);
-      await settleInvoices(store, configIndex, now);
       await expireInvoices(store, configIndex, now);
       await deliverWebhooks(store, configIndex, now);
       await deliverFulfillments(store, registry, now);
