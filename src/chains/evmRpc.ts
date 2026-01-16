@@ -9,6 +9,11 @@ export type EvmLog = {
   logIndex: string;
 };
 
+export type EvmBlock = {
+  number: string;
+  timestamp: string;
+};
+
 type RpcResponse<T> = {
   result: T;
   error?: { message: string };
@@ -60,6 +65,15 @@ export async function getLogs(
     },
   ];
   return rpcCall<EvmLog[]>(rpcUrl, "eth_getLogs", params);
+}
+
+export async function getBlockTimestampMs(rpcUrl: string, blockNumber: number): Promise<number> {
+  const hex = `0x${blockNumber.toString(16)}`;
+  const block = await rpcCall<EvmBlock | null>(rpcUrl, "eth_getBlockByNumber", [hex, false]);
+  if (!block) {
+    throw new Error(`missing block ${blockNumber}`);
+  }
+  return hexToNumber(block.timestamp) * 1000;
 }
 
 export function hexToBigInt(value: string): bigint {

@@ -104,6 +104,19 @@ export async function getTransaction(
   return rpcCall<SolanaTransaction | null>(rpcUrl, "getTransaction", params);
 }
 
+export async function getSlot(
+  rpcUrl: string,
+  commitment: "finalized" = "finalized",
+): Promise<number> {
+  const params = [{ commitment }];
+  return rpcCall<number>(rpcUrl, "getSlot", params);
+}
+
+export async function getBlockTime(rpcUrl: string, slot: number): Promise<number | null> {
+  const params = [slot];
+  return rpcCall<number | null>(rpcUrl, "getBlockTime", params);
+}
+
 export async function getSignatureStatuses(
   rpcUrl: string,
   signatures: string[],
