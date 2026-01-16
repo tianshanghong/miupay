@@ -1,7 +1,7 @@
 import type { ConfigIndex } from "../config.js";
 import type { StateStore } from "../stateStore.js";
-import { enqueueFulfillments } from "../fulfillments/queue.js";
-import { enqueueWebhooks } from "../webhooks.js";
+import { enqueueFulfillments } from "../core/fulfillments/queue.js";
+import { enqueueWebhooks } from "../core/webhooks.js";
 
 export async function expireInvoices(store: StateStore, configIndex: ConfigIndex, now: number) {
   await store.withLock((state) => {

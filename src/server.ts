@@ -2,13 +2,13 @@ import express from "express";
 import crypto from "crypto";
 import fs from "fs/promises";
 import type { ConfigIndex } from "./config.js";
-import type { FulfillmentRegistry } from "./fulfillments/registry.js";
+import type { FulfillmentRegistry } from "./core/fulfillments/registry.js";
 import type { StateStore } from "./stateStore.js";
-import type { Invoice } from "./types.js";
+import type { Invoice } from "./core/types.js";
 import { deriveAta } from "./chains/solanaRpc.js";
-import { registerFulfillmentRoutes } from "./fulfillments/registry.js";
-import { resolveMediaAssetPath } from "./fulfillments/media/assets.js";
-import { productHasFulfillment } from "./fulfillments/selection.js";
+import { registerFulfillmentRoutes } from "./core/fulfillments/registry.js";
+import { resolveMediaAssetPath } from "./core/fulfillments/media/assets.js";
+import { productHasFulfillment } from "./core/fulfillments/selection.js";
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 30;

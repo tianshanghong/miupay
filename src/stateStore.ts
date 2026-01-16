@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import type { State } from "./types.js";
+import type { State } from "./core/types.js";
 
 const emptyState: State = {
   checkpoints: {},
