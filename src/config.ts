@@ -8,7 +8,6 @@ import type {
   FulfillmentModuleId,
   MediaFulfillmentConfig,
   ProductConfig,
-  TelegramFulfillmentConfig,
   TokenConfig,
   WebhookEndpointConfig,
   WebhookEvent,
@@ -31,7 +30,7 @@ const webhookEndpointSchema: z.ZodType<WebhookEndpointConfig> = z.object({
   events: z.array(webhookEventSchema).min(1),
 });
 
-const fulfillmentModuleSchema = z.enum(["media", "telegram"]);
+const fulfillmentModuleSchema = z.literal("media");
 
 const mediaFulfillmentSchema: z.ZodType<MediaFulfillmentConfig> = z.object({
   enabled: z.boolean(),
@@ -42,16 +41,9 @@ const mediaFulfillmentSchema: z.ZodType<MediaFulfillmentConfig> = z.object({
   rateLimitWindowMs: z.number().int().min(1).optional(),
 });
 
-const telegramFulfillmentSchema: z.ZodType<TelegramFulfillmentConfig> = z.object({
-  enabled: z.boolean(),
-  botToken: z.string().min(1).optional(),
-  targetChatId: z.string().min(1).optional(),
-});
-
 const fulfillmentSchema: z.ZodType<FulfillmentConfig> = z
   .object({
     media: mediaFulfillmentSchema.optional(),
-    telegram: telegramFulfillmentSchema.optional(),
   })
   .passthrough();
 
@@ -71,7 +63,6 @@ const chainSchema: z.ZodType<ChainConfig> = z.object({
   receiveOwner: z.string().optional(),
   finality: z.object({
     confirmations: z.number().int().min(0).optional(),
-    bufferBlocks: z.number().int().min(0).optional(),
     commitment: z.literal("finalized").optional(),
   }),
   tokens: z.array(tokenSchema).min(1),
@@ -145,9 +136,6 @@ function validateChains(chains: ChainConfig[]) {
       if (chain.finality.confirmations === undefined) {
         throw new Error(`chain ${chain.id} missing finality.confirmations`);
       }
-      if (chain.finality.bufferBlocks === undefined) {
-        throw new Error(`chain ${chain.id} missing finality.bufferBlocks`);
-      }
     }
     if (chain.type === "solana") {
       if (!chain.receiveOwner) {
@@ -166,9 +154,6 @@ function validateProductFulfillments(config: AppConfig) {
   const enabled = new Set<FulfillmentModuleId>();
   if (config.fulfillments?.media?.enabled) {
     enabled.add("media");
-  }
-  if (config.fulfillments?.telegram?.enabled) {
-    enabled.add("telegram");
   }
 
   for (const product of config.products) {

@@ -14,9 +14,6 @@ export function resolveProductFulfillments(
   if (fulfillments.media?.enabled) {
     resolved.push("media");
   }
-  if (fulfillments.telegram?.enabled) {
-    resolved.push("telegram");
-  }
   return resolved;
 }
 
