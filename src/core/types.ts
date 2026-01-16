@@ -7,7 +7,7 @@ export type FulfillmentEvent = {
   invoice: Invoice;
 };
 
-export type FulfillmentModuleId = "media" | "telegram";
+export type FulfillmentModuleId = "media";
 
 export type ProductConfig = {
   id: string;
@@ -29,7 +29,6 @@ export type TokenConfig = {
 
 export type ChainFinalityConfig = {
   confirmations?: number;
-  bufferBlocks?: number;
   commitment?: "finalized";
 };
 
@@ -59,15 +58,8 @@ export type MediaFulfillmentConfig = {
   rateLimitWindowMs?: number;
 };
 
-export type TelegramFulfillmentConfig = {
-  enabled: boolean;
-  botToken?: string;
-  targetChatId?: string;
-};
-
 export type FulfillmentConfig = Record<string, unknown> & {
   media?: MediaFulfillmentConfig;
-  telegram?: TelegramFulfillmentConfig;
 };
 
 export type AppConfig = {

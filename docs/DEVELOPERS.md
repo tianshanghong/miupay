@@ -30,7 +30,7 @@ Create a `config.json` like this (single-chain example):
       "type": "evm",
       "rpcUrl": "https://<rpc-url>",
       "receiveAddress": "0x<recipient-address>",
-      "finality": { "confirmations": 2, "bufferBlocks": 1 },
+      "finality": { "confirmations": 2 },
       "tokens": [
         {
           "id": "usdc",

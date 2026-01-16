@@ -24,8 +24,8 @@ export async function scanEvm(store: StateStore, configIndex: ConfigIndex, now: 
 
   for (const chain of evmChains) {
     const head = await getBlockNumber(chain.rpcUrl);
-    const buffer = chain.finality.bufferBlocks ?? 0;
-    const scanHead = head - buffer;
+    const confirmations = chain.finality.confirmations ?? 0;
+    const scanHead = head - confirmations;
     if (scanHead <= 0) {
       continue;
     }
