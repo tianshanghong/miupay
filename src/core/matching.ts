@@ -50,6 +50,9 @@ export function attachPaymentToInvoice(
     txHashOrSig: payment.txHashOrSig,
     amount: payment.amount,
     blockRef: payment.blockRef,
+    from: payment.from,
+    to: payment.to,
+    paymentTime: payment.paymentTime,
   };
   return invoice.idempotencyId;
 }

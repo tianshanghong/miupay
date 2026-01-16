@@ -99,6 +99,9 @@ export type InvoicePayment = {
   txHashOrSig: string;
   amount: string;
   blockRef?: number;
+  from?: string;
+  to?: string;
+  paymentTime?: number;
 };
 
 export type Invoice = {
@@ -110,6 +113,7 @@ export type Invoice = {
   baseAmount?: string;
   verificationCode?: string;
   metadata?: Record<string, string>;
+  receiveTo?: string;
   status: InvoiceStatus;
   createdAt: number;
   expiresAt: number;
@@ -127,6 +131,7 @@ export type PaymentIndexEntry = {
   to: string;
   amount: string;
   blockRef?: number;
+  paymentTime?: number;
   idempotencyId?: string;
 };
 
@@ -134,10 +139,12 @@ export type Checkpoint =
   | {
       type: "evm";
       lastScannedBlock: number;
+      cursorTimeMs?: number;
     }
   | {
       type: "solana";
       lastSeenSignature: string | null;
+      cursorTimeMs?: number;
     };
 
 export type WebhookQueueItem = {
@@ -177,7 +184,13 @@ export type FulfillmentsState = Record<string, unknown> & {
   media?: MediaFulfillmentState;
 };
 
+export type ChainTimeEntry = {
+  chainTimeMs: number;
+  updatedAt: number;
+};
+
 export type State = {
+  chainTime: Record<string, ChainTimeEntry>;
   checkpoints: Record<string, Checkpoint>;
   invoices: Record<string, Invoice>;
   paymentsIndex: Record<string, PaymentIndexEntry>;

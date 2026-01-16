@@ -3,6 +3,7 @@ import path from "path";
 import type { State } from "./core/types.js";
 
 const emptyState: State = {
+  chainTime: {},
   checkpoints: {},
   invoices: {},
   paymentsIndex: {},
@@ -20,6 +21,7 @@ async function loadStateFile(statePath: string): Promise<State> {
     return {
       ...emptyState,
       ...parsed,
+      chainTime: parsed.chainTime ?? {},
       checkpoints: parsed.checkpoints ?? {},
       invoices: parsed.invoices ?? {},
       paymentsIndex: parsed.paymentsIndex ?? {},
