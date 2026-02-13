@@ -22,6 +22,7 @@ export type SolanaTokenBalance = {
 };
 
 export type SolanaTransaction = {
+  blockTime?: number | null;
   slot: number;
   meta: {
     err: unknown;
